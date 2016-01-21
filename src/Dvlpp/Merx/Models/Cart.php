@@ -61,6 +61,10 @@ class Cart extends Model
             $item->quantity = $quantity;
         }
 
+        if ($item->quantity == 0) {
+            $item->quantity = 1;
+        }
+
         return $this->items()->save($item);
     }
 

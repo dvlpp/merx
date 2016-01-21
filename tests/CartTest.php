@@ -207,6 +207,24 @@ class CartTest extends TestCase
         $cart->addItem(new CartItem($this->itemAttributes()));
     }
 
+    /** @test */
+    public function the_minimum_quantity_when_adding_an_item_is_one()
+    {
+        $itemAttributes = $this->itemAttributes();
+        unset($itemAttributes["quantity"]);
+
+        $cart = $this->newCart();
+
+        $item = $cart->addItem($itemAttributes);
+
+        $this->assertEquals(1, $cart->itemsCount());
+
+        $this->seeInDatabase('merx_cart_items', [
+            "id" => $item->id,
+            "quantity" => 1
+        ]);
+    }
+
     private function newCart()
     {
         return Cart::create();
