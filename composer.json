@@ -1,0 +1,40 @@
+{
+  "name": "dvlpp/merx",
+  "description": "E-commerce toolbox for Laravel.",
+  "authors": [
+    {
+      "name": "Philippe Lonchampt",
+      "email": "philippelonchampt@gmail.com"
+    }
+  ],
+  "license": "MIT",
+  "type": "project",
+  "require": {
+    "php": ">=5.5.9",
+    "laravel/framework": "5.2.*"
+  },
+  "require-dev": {
+    "laravel/laravel": "5.2.*",
+    "fzaninotto/faker": "~1.4",
+    "mockery/mockery": "0.9.*",
+    "phpunit/phpunit": "~4.0",
+    "symfony/css-selector": "2.8.*|3.0.*",
+    "symfony/dom-crawler": "2.8.*|3.0.*"
+  },
+  "autoload": {
+    "classmap": [
+      "database"
+    ],
+    "psr-4": {
+      "Dvlpp\\Merx\\": "src/Dvlpp/Merx/"
+    },
+    "files": [
+      "src/helper.php"
+    ]
+  },
+  "autoload-dev": {
+    "classmap": [
+      "tests/TestCase.php"
+    ]
+  }
+}
