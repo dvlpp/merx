@@ -1,6 +1,7 @@
 <?php
 
 use Dvlpp\Merx\Exceptions\CartClosedException;
+use Dvlpp\Merx\Exceptions\InvalidCartItemException;
 use Dvlpp\Merx\Models\Cart;
 use Dvlpp\Merx\Models\CartItem;
 use Dvlpp\Merx\Models\CartItemMapper;
@@ -238,6 +239,16 @@ class CartTest extends TestCase
 
         $this->assertEquals(2, $cart->itemsCount());
         $this->assertCount(1, $cart->items);
+    }
+
+    /** @test */
+    public function we_cant_add_an_invalid_item()
+    {
+        $cart = $this->newCart();
+
+        $this->setExpectedException(InvalidCartItemException::class);
+
+        $cart->addItem("test");
     }
 
     private function newCart()

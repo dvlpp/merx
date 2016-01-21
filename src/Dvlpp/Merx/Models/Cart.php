@@ -2,6 +2,7 @@
 
 namespace Dvlpp\Merx\Models;
 
+use Dvlpp\Merx\Exceptions\InvalidCartItemException;
 use Illuminate\Database\Eloquent\Model;
 use Dvlpp\Merx\Exceptions\MapperException;
 use Dvlpp\Merx\Exceptions\CartClosedException;
@@ -39,6 +40,7 @@ class Cart extends Model
      * @param int|null $quantity
      * @return static
      * @throws CartClosedException
+     * @throws InvalidCartItemException
      * @throws MapperException
      */
     public function addItem($attributes, $quantity = null)
@@ -58,9 +60,9 @@ class Cart extends Model
             $item = merx_item_map($attributes);
         }
 
-//        if(!$item || !$item instanceof CartItem) {
-//            throw new
-//        }
+        if (!$item || !$item instanceof CartItem) {
+            throw new InvalidCartItemException;
+        }
 
         if ($quantity) {
             $item->quantity = $quantity;
