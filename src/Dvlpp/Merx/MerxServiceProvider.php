@@ -16,6 +16,10 @@ class MerxServiceProvider extends ServiceProvider
 
     public function boot()
     {
+        // Publish migrations
+        $this->publishes([
+            __DIR__ . '/../../../database/migrations/' => database_path('migrations')
+        ], 'migrations');
     }
 
     /**
@@ -25,6 +29,7 @@ class MerxServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        // Register Facade
         $this->app->bind('merx', Merx::class);
     }
 
