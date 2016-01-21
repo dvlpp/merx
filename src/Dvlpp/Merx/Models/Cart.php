@@ -47,21 +47,21 @@ class Cart extends Model
             throw new CartClosedException();
         }
 
+        // Case $attributes is an instance of CartItem
+        $item = $attributes;
+
         if (is_array($attributes)) {
             $item = new CartItem($attributes);
 
-        } elseif ($attributes instanceof CartItem) {
-            $item = $attributes;
-
-        } elseif (is_object($attributes)) {
+        } elseif (is_object($attributes) && !$attributes instanceof CartItem) {
+            // Mapping case: we try to insert a "domain" object
             $item = merx_item_map($attributes);
         }
 
         if ($quantity) {
             $item->quantity = $quantity;
-        }
 
-        if ($item->quantity == 0) {
+        } elseif ($item->quantity == 0) {
             $item->quantity = 1;
         }
 
