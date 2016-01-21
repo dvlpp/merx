@@ -47,7 +47,7 @@ class Cart extends Model
             throw new CartClosedException();
         }
 
-        // Case $attributes is an instance of CartItem
+        // We first consider that $attributes is an instance of CartItem
         $item = $attributes;
 
         if (is_array($attributes)) {
@@ -58,11 +58,24 @@ class Cart extends Model
             $item = merx_item_map($attributes);
         }
 
+//        if(!$item || !$item instanceof CartItem) {
+//            throw new
+//        }
+
         if ($quantity) {
             $item->quantity = $quantity;
 
         } elseif ($item->quantity == 0) {
             $item->quantity = 1;
+        }
+
+        // If item already exist, we add up quantities
+        $existingItem = $this->findItem($item->ref);
+        if ($existingItem) {
+            $existingItem->quantity += $item->quantity;
+            $existingItem->save();
+
+            return $existingItem;
         }
 
         return $this->items()->save($item);
@@ -93,9 +106,9 @@ class Cart extends Model
      * @param $ref
      * @return CartItem|null
      */
-    public function item($ref)
+    public function findItem($ref)
     {
-        return $this->items->where("ref", $ref)->first();
+        return $this->items()->where("ref", $ref)->first();
     }
 
     /**
@@ -185,6 +198,6 @@ class Cart extends Model
             $itemRef = $item->ref;
         }
 
-        return $this->item($itemRef);
+        return $this->findItem($itemRef);
     }
 }

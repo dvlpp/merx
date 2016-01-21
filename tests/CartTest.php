@@ -36,7 +36,7 @@ class CartTest extends TestCase
         $cart = $this->newCart();
         $cart->addItem($itemAttributes);
 
-        $item = $cart->item($itemRef);
+        $item = $cart->findItem($itemRef);
 
         $this->assertInstanceOf(CartItem::class, $item);
     }
@@ -223,6 +223,21 @@ class CartTest extends TestCase
             "id" => $item->id,
             "quantity" => 1
         ]);
+    }
+
+    /** @test */
+    public function when_adding_an_item_which_already_exists_in_cart_we_add_up_quantities()
+    {
+        $cart = $this->newCart();
+
+        $itemAttributes = $this->itemAttributes();
+        $itemAttributes["quantity"] = 1;
+
+        $cart->addItem($itemAttributes);
+        $cart->addItem($itemAttributes);
+
+        $this->assertEquals(2, $cart->itemsCount());
+        $this->assertCount(1, $cart->items);
     }
 
     private function newCart()
