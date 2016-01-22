@@ -90,7 +90,7 @@ class Cart extends Model
      */
     public function removeItem($itemRef)
     {
-        $removableItem = $this->getItem($itemRef);
+        $removableItem = $this->getItemFromRefOrItemOrObject($itemRef);
 
         foreach ($this->items as $key => $cartItem) {
             if ($cartItem->ref != $removableItem->ref) {
@@ -115,6 +115,15 @@ class Cart extends Model
     }
 
     /**
+     * @param int $id
+     * @return CartItem|null
+     */
+    public function getItem($id)
+    {
+        return $this->items()->find($id);
+    }
+
+    /**
      * @return int
      */
     public function total()
@@ -132,7 +141,7 @@ class Cart extends Model
      */
     public function updateItemQuantity($itemRef, $quantity)
     {
-        $updatableItem = $this->getItem($itemRef);
+        $updatableItem = $this->getItemFromRefOrItemOrObject($itemRef);
 
         if (!$updatableItem) {
             throw new CartItemNotFoundException;
@@ -195,7 +204,7 @@ class Cart extends Model
      * @return CartItem|null
      * @throws MapperException
      */
-    protected function getItem($itemRef)
+    protected function getItemFromRefOrItemOrObject($itemRef)
     {
         if ($itemRef instanceof CartItem) {
             return $itemRef;

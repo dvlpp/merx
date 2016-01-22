@@ -44,6 +44,20 @@ class CartTest extends TestCase
     }
 
     /** @test */
+    public function we_can_get_an_exisiting_item_by_its_id()
+    {
+        $itemAttributes = $this->itemAttributes();
+
+        $cart = $this->newCart();
+        $item = $cart->addItem($itemAttributes);
+
+        $item2 = $cart->getItem($item->id);
+
+        $this->assertInstanceOf(CartItem::class, $item2);
+        $this->assertEquals($item->id, $item2->id);
+    }
+
+    /** @test */
     public function we_can_calculate_the_total_cart_value()
     {
         $item1 = new CartItem($this->itemAttributes());
