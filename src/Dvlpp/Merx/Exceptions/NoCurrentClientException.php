@@ -2,7 +2,7 @@
 
 namespace Dvlpp\Merx\Exceptions;
 
-class NoCurrentClientException extends \Exception
+class NoCurrentClientException extends MerxException
 {
 
 }

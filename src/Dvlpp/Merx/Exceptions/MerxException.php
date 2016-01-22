@@ -2,7 +2,7 @@
 
 namespace Dvlpp\Merx\Exceptions;
 
-class MapperException extends MerxException
+class MerxException extends \Exception
 {
 
 }

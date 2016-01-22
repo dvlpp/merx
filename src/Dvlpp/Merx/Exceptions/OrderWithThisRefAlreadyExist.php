@@ -2,7 +2,7 @@
 
 namespace Dvlpp\Merx\Exceptions;
 
-class OrderWithThisRefAlreadyExist extends \Exception
+class OrderWithThisRefAlreadyExist extends MerxException
 {
 
 }

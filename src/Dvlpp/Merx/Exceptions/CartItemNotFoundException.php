@@ -2,7 +2,7 @@
 
 namespace Dvlpp\Merx\Exceptions;
 
-class CartItemNotFoundException extends \Exception
+class CartItemNotFoundException extends MerxException
 {
 
 }

@@ -2,7 +2,7 @@
 
 namespace Dvlpp\Merx\Exceptions;
 
-class NoCurrentCartException extends \Exception
+class NoCurrentCartException extends MerxException
 {
 
 }
