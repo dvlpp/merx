@@ -2,6 +2,7 @@
 
 namespace Dvlpp\Merx\Models;
 
+use Dvlpp\Merx\Exceptions\CartItemNotFoundException;
 use Dvlpp\Merx\Exceptions\InvalidCartItemException;
 use Illuminate\Database\Eloquent\Model;
 use Dvlpp\Merx\Exceptions\MapperException;
@@ -127,10 +128,15 @@ class Cart extends Model
      * @param string|CartItem|Object $itemRef
      * @param int $quantity
      * @return $this
+     * @throws CartItemNotFoundException
      */
     public function updateItemQuantity($itemRef, $quantity)
     {
         $updatableItem = $this->getItem($itemRef);
+
+        if (!$updatableItem) {
+            throw new CartItemNotFoundException;
+        }
 
         $updatableItem->update([
             "quantity" => $quantity

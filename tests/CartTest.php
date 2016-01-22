@@ -1,6 +1,7 @@
 <?php
 
 use Dvlpp\Merx\Exceptions\CartClosedException;
+use Dvlpp\Merx\Exceptions\CartItemNotFoundException;
 use Dvlpp\Merx\Exceptions\InvalidCartItemException;
 use Dvlpp\Merx\Models\Cart;
 use Dvlpp\Merx\Models\CartItem;
@@ -249,6 +250,16 @@ class CartTest extends TestCase
         $this->setExpectedException(InvalidCartItemException::class);
 
         $cart->addItem("test");
+    }
+
+    /** @test */
+    public function we_cant_update_a_non_existing_item()
+    {
+        $cart = $this->newCart();
+
+        $this->setExpectedException(CartItemNotFoundException::class);
+
+        $cart->updateItemQuantity("123", 2);
     }
 
     private function newCart()
