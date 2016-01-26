@@ -22,10 +22,6 @@ class Cart extends Model
         Cart::creating(function ($cart) {
             $cart->state = "opened";
         });
-
-        Cart::saving(function ($cart) {
-            $cart->session_id = session()->getId();
-        });
     }
 
     /**

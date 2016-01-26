@@ -18,7 +18,6 @@ function merx_current_cart()
     }
 
     return Cart::where("id", $cartId)
-        ->where("session_id", session()->getId())
         ->first();
 }
 
