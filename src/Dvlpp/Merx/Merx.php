@@ -122,4 +122,9 @@ class Merx
 
         return $cart;
     }
+
+    public function logoutClient()
+    {
+        session()->forget("merx_client_id");
+    }
 }

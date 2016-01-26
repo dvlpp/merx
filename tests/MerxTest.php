@@ -94,6 +94,17 @@ class MerxTest extends TestCase
     }
 
     /** @test */
+    public function we_can_logout_a_client()
+    {
+        $merx = new Merx();
+        $merx->loginClient("123");
+
+        $merx->logoutClient();
+
+        $this->assertEquals(null, session("merx_client_id"));
+    }
+
+    /** @test */
     public function current_logged_client_is_returned()
     {
         $merx = new Merx();
