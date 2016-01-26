@@ -18,7 +18,6 @@ class MerxTest extends TestCase
 
         $this->seeInDatabase('merx_carts', [
             "id" => $cart->id,
-            "session_id" => session()->getId()
         ]);
     }
 
