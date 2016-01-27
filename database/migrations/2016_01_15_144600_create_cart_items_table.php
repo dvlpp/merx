@@ -42,6 +42,6 @@ class CreateCartItemsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('merx_cart_items');
+        Schema::dropIfExists('merx_cart_items');
     }
 }

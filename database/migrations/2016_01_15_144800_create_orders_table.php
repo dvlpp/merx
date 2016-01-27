@@ -43,6 +43,6 @@ class CreateOrdersTable extends Migration
      */
     public function down()
     {
-        Schema::drop('merx_orders');
+        Schema::dropIfExists('merx_orders');
     }
 }

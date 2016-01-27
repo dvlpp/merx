@@ -2,6 +2,7 @@
 
 namespace Dvlpp\Merx;
 
+use Dvlpp\Merx\Console\MigrateDb;
 use Illuminate\Support\ServiceProvider;
 
 class MerxServiceProvider extends ServiceProvider
@@ -31,6 +32,8 @@ class MerxServiceProvider extends ServiceProvider
     {
         // Register Facade
         $this->app->bind('merx', Merx::class);
+
+        $this->commands(MigrateDb::class);
     }
 
     /**
