@@ -17,16 +17,20 @@ class CreateOrdersTable extends Migration
             $table->integer('cart_id')->unsigned();
             $table->integer('client_id')->unsigned();
             $table->string("ref")->index();
+            $table->string("state");
+            $table->json("attributes")->nullable();
 
             $table->foreign('cart_id')
                 ->references('id')
                 ->on('merx_carts')
                 ->onDelete('cascade');
 
-            $table->foreign('client_id')
-                ->references('id')
-                ->on('merx_clients')
-                ->onDelete('cascade');
+            if (config("merx.users.table")) {
+                $table->foreign('client_id')
+                    ->references('id')
+                    ->on(config("merx.users.table"))
+                    ->onDelete('cascade');
+            }
 
             $table->timestamps();
         });

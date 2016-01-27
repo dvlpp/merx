@@ -4,7 +4,6 @@ namespace Dvlpp\Merx;
 
 use Dvlpp\Merx\Models\Cart;
 use Dvlpp\Merx\Models\Order;
-use Dvlpp\Merx\Models\Client;
 use Dvlpp\Merx\Exceptions\EmptyCartException;
 use Dvlpp\Merx\Exceptions\CartClosedException;
 use Dvlpp\Merx\Exceptions\NoCurrentCartException;
@@ -13,11 +12,6 @@ use Dvlpp\Merx\Exceptions\OrderWithThisRefAlreadyExist;
 
 class Merx
 {
-    /**
-     * @var Client
-     */
-    protected $client;
-
     /**
      * @var Cart
      */
@@ -47,43 +41,6 @@ class Merx
     }
 
     /**
-     * @return Client|null
-     */
-    public function client()
-    {
-        if (!$this->client) {
-            $this->client = merx_current_client();
-        }
-
-        return $this->client;
-    }
-
-    /**
-     * Login a client, creating it first in DB if needed.
-     *
-     * @param string $ref
-     * @param bool $create
-     * @return Client
-     */
-    public function loginClient($ref, $create = true)
-    {
-        $this->client = Client::where("ref", $ref)
-            ->first();
-
-        if (!$this->client && $create) {
-            $this->client = Client::create([
-                "ref" => $ref
-            ]);
-        }
-
-        if ($this->client) {
-            session()->put("merx_client_id", $this->client->id);
-        }
-
-        return $this->client;
-    }
-
-    /**
      * Store a new order based on the session's cart and client.
      *
      * @param string $orderRef
@@ -99,7 +56,7 @@ class Merx
     {
         // Create order from session's cart
         $order = Order::create([
-            "ref" => $orderRef
+            "ref" => $orderRef,
         ]);
 
         // Remove cart from session
@@ -123,8 +80,4 @@ class Merx
         return $cart;
     }
 
-    public function logoutClient()
-    {
-        session()->forget("merx_client_id");
-    }
 }

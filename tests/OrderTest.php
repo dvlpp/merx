@@ -7,7 +7,6 @@ use Dvlpp\Merx\Exceptions\NoCurrentClientException;
 use Dvlpp\Merx\Exceptions\OrderWithThisRefAlreadyExist;
 use Dvlpp\Merx\Models\Cart;
 use Dvlpp\Merx\Models\CartItem;
-use Dvlpp\Merx\Models\Client;
 use Dvlpp\Merx\Models\Order;
 
 class OrderTest extends TestCase
@@ -19,10 +18,7 @@ class OrderTest extends TestCase
         $cart = Cart::create();
         session()->put("merx_cart_id", $cart->id);
 
-        $client = Client::create([
-            "ref" => "123"
-        ]);
-        session()->put("merx_client_id", $client->id);
+        $client = $this->loginClient();
 
         $cart->addItem(new CartItem($this->itemAttributes()));
 
@@ -46,10 +42,7 @@ class OrderTest extends TestCase
         $cart = Cart::create();
         session()->put("merx_cart_id", $cart->id);
 
-        $client = Client::create([
-            "ref" => "123"
-        ]);
-        session()->put("merx_client_id", $client->id);
+        $this->loginClient();
 
         $this->setExpectedException(EmptyCartException::class);
 
@@ -74,10 +67,7 @@ class OrderTest extends TestCase
     /** @test */
     public function we_cant_make_a_new_order_without_a_cart()
     {
-        $client = Client::create([
-            "ref" => "123"
-        ]);
-        session()->put("merx_client_id", $client->id);
+        $this->loginClient();
 
         $this->setExpectedException(NoCurrentCartException::class);
 
@@ -92,10 +82,7 @@ class OrderTest extends TestCase
         $cart = Cart::create();
         session()->put("merx_cart_id", $cart->id);
 
-        $client = Client::create([
-            "ref" => "123"
-        ]);
-        session()->put("merx_client_id", $client->id);
+        $this->loginClient();
 
         $cart->addItem(new CartItem($this->itemAttributes()));
 
@@ -111,10 +98,7 @@ class OrderTest extends TestCase
     /** @test */
     public function we_cant_make_create_an_order_with_an_existing_ref()
     {
-        $client = Client::create([
-            "ref" => "123"
-        ]);
-        session()->put("merx_client_id", $client->id);
+        $this->loginClient();
 
         $this->setExpectedException(OrderWithThisRefAlreadyExist::class);
 

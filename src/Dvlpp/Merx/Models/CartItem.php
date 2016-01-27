@@ -9,11 +9,13 @@ class CartItem extends Model
     protected $table = "merx_cart_items";
 
     protected $fillable = [
-        "ref",
+        "article_id",
+        "article_type",
         "name",
         "details",
         "price",
-        "quantity"
+        "quantity",
+        "attributes"
     ];
 
     /**

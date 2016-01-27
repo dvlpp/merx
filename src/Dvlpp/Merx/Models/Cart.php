@@ -69,7 +69,7 @@ class Cart extends Model
         }
 
         // If item already exist, we add up quantities
-        $existingItem = $this->findItem($item->ref);
+        $existingItem = $this->findItem($item->article_id);
         if ($existingItem) {
             $existingItem->quantity += $item->quantity;
             $existingItem->save();
@@ -89,7 +89,7 @@ class Cart extends Model
         $removableItem = $this->getItemFromRefOrItemOrObject($itemRef);
 
         foreach ($this->items as $key => $cartItem) {
-            if ($cartItem->ref != $removableItem->ref) {
+            if ($cartItem->article_id != $removableItem->article_id) {
                 continue;
             }
 
@@ -107,7 +107,9 @@ class Cart extends Model
      */
     public function findItem($ref)
     {
-        return $this->items()->where("ref", $ref)->first();
+        return $this->items()
+            ->where("article_id", $ref)
+            ->first();
     }
 
     /**
@@ -208,7 +210,7 @@ class Cart extends Model
 
         if (is_object($itemRef)) {
             $item = merx_item_map($itemRef);
-            $itemRef = $item->ref;
+            $itemRef = $item->article_id;
         }
 
         return $this->findItem($itemRef);

@@ -15,11 +15,16 @@ class CreateCartItemsTable extends Migration
         Schema::create('merx_cart_items', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('cart_id')->unsigned();
-            $table->string("ref")->index();
             $table->string("name");
             $table->string("details")->nullable();
             $table->integer("price")->unsigned();
             $table->smallInteger("quantity")->unsigned();
+            $table->json("attributes")->nullable();
+
+            // Morph link to the real article
+            $table->string("article_id");
+            $table->string("article_type");
+            $table->index(["article_id", "article_type"]);
 
             $table->foreign('cart_id')
                 ->references('id')

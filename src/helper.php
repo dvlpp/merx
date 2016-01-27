@@ -3,7 +3,6 @@
 use Dvlpp\Merx\Exceptions\MapperException;
 use Dvlpp\Merx\Models\Cart;
 use Dvlpp\Merx\Models\CartItem;
-use Dvlpp\Merx\Models\Client;
 
 
 /**
@@ -22,18 +21,17 @@ function merx_current_cart()
 }
 
 /**
- * @return Client|null
+ * @return int|null
  */
-function merx_current_client()
+function merx_current_client_id()
 {
-    $clientId = session("merx_client_id");
+    $user = auth()->user();
 
-    if (!$clientId) {
-        return null;
+    if ($user && $user->isMerxUser()) {
+        return $user->id;
     }
 
-    return Client::where("id", $clientId)
-        ->first();
+    return null;
 }
 
 /**
@@ -51,5 +49,11 @@ function merx_item_map($object)
 
     $mapper = new $mapperClass;
 
-    return new CartItem($mapper->mapCartItemAttributes($object));
+    $attributes = $mapper->mapCartItemAttributes($object);
+    // TODO add some attribute presence validation
+    $attributes["article_id"] = $attributes["id"];
+    $attributes["article_type"] = $attributes["type"];
+    unset($attributes["id"], $attributes["type"]);
+
+    return new CartItem($attributes);
 }

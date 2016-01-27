@@ -14,7 +14,9 @@ class Order extends Model
     protected $table = "merx_orders";
 
     protected $fillable = [
-        "ref"
+        "ref",
+        "state",
+        "attributes"
     ];
 
     /**
@@ -26,9 +28,9 @@ class Order extends Model
 
         Order::saving(function ($order) {
             $cart = merx_current_cart();
-            $client = merx_current_client();
+            $clientId = merx_current_client_id();
 
-            if (!$client) {
+            if (!$clientId) {
                 throw new NoCurrentClientException();
             }
 
@@ -44,7 +46,8 @@ class Order extends Model
             $cart->close();
 
             $order->cart_id = $cart->id;
-            $order->client_id = $client->id;
+            $order->client_id = $clientId;
+            $order->state = "draft";
         });
     }
 
@@ -55,7 +58,14 @@ class Order extends Model
 
     public function client()
     {
-        return $this->belongsTo(Client::class, "client_id");
+        if (config("merx.users.eloquent_model")) {
+            return $this->belongsTo(
+                config("merx.users.eloquent_model"),
+                "client_id"
+            );
+        }
+
+        return null;
     }
 
     public function items()

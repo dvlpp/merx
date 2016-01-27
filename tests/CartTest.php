@@ -30,10 +30,10 @@ class CartTest extends TestCase
     }
 
     /** @test */
-    public function we_can_find_an_exisiting_item_by_its_ref()
+    public function we_can_find_an_exisiting_item_by_its_article_ref()
     {
         $itemAttributes = $this->itemAttributes();
-        $itemRef = $itemAttributes["ref"];
+        $itemRef = $itemAttributes["article_id"];
 
         $cart = $this->newCart();
         $cart->addItem($itemAttributes);
@@ -99,16 +99,16 @@ class CartTest extends TestCase
         $cart->items()->save($item2);
 
         // Remove first item by ref
-        $cart->removeItem($item->ref);
+        $cart->removeItem($item2->article_id);
 
         $this->assertCount(1, $cart->items);
 
         $this->dontSeeInDatabase('merx_cart_items', [
-            "id" => $item->id
+            "id" => $item2->id
         ]);
 
         // Remove second item directly, not by ref
-        $cart->removeItem($item2);
+        $cart->removeItem($item);
 
         $this->assertCount(0, $cart->items);
 
@@ -121,7 +121,7 @@ class CartTest extends TestCase
     public function we_can_add_a_mapped_product_in_the_cart()
     {
         $product = new stdClass();
-        $product->ref = "123";
+        $product->id = 123;
         $product->label = "T-shirt";
         $product->price = 22.50;
         $product->description = "A nice blue t-shirt";
@@ -134,7 +134,7 @@ class CartTest extends TestCase
         $this->assertCount(1, $cart->items);
 
         $this->seeInDatabase('merx_cart_items', [
-            "ref" => "123",
+            "article_id" => "123",
             "name" => "T-shirt",
             "price" => 2250,
             "details" => "A nice blue t-shirt",
@@ -146,7 +146,7 @@ class CartTest extends TestCase
     public function we_can_remove_a_mapped_product_from_the_cart()
     {
         $product = new stdClass();
-        $product->ref = "123";
+        $product->id = "123";
         $product->label = "T-shirt";
         $product->price = 22.50;
         $product->description = "A nice blue t-shirt";
@@ -176,7 +176,7 @@ class CartTest extends TestCase
         $cart->addItem($item);
 
         // Update qty passing ref
-        $cart->updateItemQuantity($item->ref, 2);
+        $cart->updateItemQuantity($item->article_id, 2);
 
         $this->seeInDatabase('merx_cart_items', [
             "id" => $item->id,
@@ -294,7 +294,8 @@ class ProductToCartItemMapper implements CartItemMapper
             "name" => $object->label,
             "price" => $object->price * 100,
             "details" => $object->description,
-            "ref" => $object->ref
+            "id" => $object->id,
+            "type" => TestArticle::class
         ];
     }
 }

@@ -1,8 +1,11 @@
 <?php
 
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Filesystem\ClassFinder;
 use Illuminate\Filesystem\Filesystem;
 use Faker\Generator as Faker;
+use Illuminate\Support\Facades\Schema;
 
 abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
 {
@@ -42,7 +45,8 @@ abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
     protected function itemAttributes()
     {
         return [
-            "ref" => uniqid(),
+            "article_id" => uniqid(),
+            "article_type" => TestArticle::class,
             "name" => $this->faker->word,
             "price" => $this->faker->numberBetween(100, 10000),
             "quantity" => $this->faker->numberBetween(1, 10),
@@ -52,6 +56,11 @@ abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
 
     protected function migrateDatabase()
     {
+        // First create fake users and articles tables
+        (new CreateTestUsersTable())->up();
+        (new CreateTestArticlesTable())->up();
+
+        // Then migrate Merx tables
         $fileSystem = new Filesystem;
         $classFinder = new ClassFinder;
 
@@ -61,5 +70,64 @@ abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
 
             (new $migrationClass)->up();
         }
+    }
+
+    protected function loginClient()
+    {
+        $user = TestUser::create();
+
+        auth()->login($user);
+
+        return $user;
+    }
+}
+
+class TestUser extends \Illuminate\Database\Eloquent\Model implements Illuminate\Contracts\Auth\Authenticatable
+{
+
+    use Illuminate\Auth\Authenticatable;
+
+    protected $table = 'users';
+
+    public function isMerxUser()
+    {
+        return true;
+    }
+}
+
+class TestArticle extends \Illuminate\Database\Eloquent\Model
+{
+    protected $table = 'article';
+}
+
+class CreateTestUsersTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('users', function (Blueprint $table) {
+            $table->increments('id');
+            $table->timestamps();
+        });
+    }
+}
+
+class CreateTestArticlesTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('articles', function (Blueprint $table) {
+            $table->increments('id');
+            $table->timestamps();
+        });
     }
 }
