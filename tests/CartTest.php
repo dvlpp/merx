@@ -276,6 +276,23 @@ class CartTest extends TestCase
         $cart->updateItemQuantity("123", 2);
     }
 
+    /** @test */
+    public function we_get_the_related_product_from_a_cart_item()
+    {
+        $item = new CartItem($this->itemAttributes());
+        $item["article_id"] = 1;
+
+        $cart = $this->newCart();
+        $cart->addItem($item);
+
+        TestArticle::create(["id" => 1]);
+
+        $article = $item->article;
+
+        $this->assertInstanceOf(TestArticle::class, $article);
+        $this->assertEquals(1, $article->id);
+    }
+
     private function newCart()
     {
         return Cart::create();

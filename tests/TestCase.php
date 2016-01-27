@@ -88,6 +88,7 @@ class TestUser extends \Illuminate\Database\Eloquent\Model implements Illuminate
     use Illuminate\Auth\Authenticatable;
 
     protected $table = 'users';
+    protected $fillable = ['*'];
 
     public function isMerxUser()
     {
@@ -97,7 +98,8 @@ class TestUser extends \Illuminate\Database\Eloquent\Model implements Illuminate
 
 class TestArticle extends \Illuminate\Database\Eloquent\Model
 {
-    protected $table = 'article';
+    protected $table = 'articles';
+    protected $fillable = ['*'];
 }
 
 class CreateTestUsersTable extends Migration

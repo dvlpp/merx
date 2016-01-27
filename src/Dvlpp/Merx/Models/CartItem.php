@@ -25,4 +25,9 @@ class CartItem extends Model
     {
         return $this->price * $this->quantity;
     }
+
+    public function article()
+    {
+        return $this->morphTo();
+    }
 }
