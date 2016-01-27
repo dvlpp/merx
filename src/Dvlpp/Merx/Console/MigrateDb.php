@@ -51,6 +51,8 @@ class MigrateDb extends Command
      */
     public function handle()
     {
+        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
         foreach ($this->filesystem->files(__DIR__ . "/../../../../database/migrations") as $file) {
             $this->filesystem->requireOnce($file);
             $migrationClass = $this->classFinder->findClass($file);
@@ -59,5 +61,7 @@ class MigrateDb extends Command
             $migration->down();
             $migration->up();
         }
+
+        \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }
