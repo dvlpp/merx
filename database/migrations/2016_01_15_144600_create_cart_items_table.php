@@ -19,7 +19,7 @@ class CreateCartItemsTable extends Migration
             $table->string("details")->nullable();
             $table->integer("price")->unsigned();
             $table->smallInteger("quantity")->unsigned();
-            $table->json("custom_attributes")->nullable();
+            $table->text("custom_attributes")->nullable();
 
             // Morph link to the real article
             $table->string("article_id");

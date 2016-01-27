@@ -62,6 +62,8 @@ class MigrateDb extends Command
             $migration->up();
         }
 
+        $this->info("Merx tables migrated.");
+
         \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }
