@@ -306,6 +306,26 @@ class CartTest extends TestCase
         $this->assertEquals(1, $article->id);
     }
 
+    /** @test */
+    public function we_can_add_custom_attribute_to_a_cart_item()
+    {
+        $cart = Cart::create();
+
+        $item = new CartItem($this->itemAttributes());
+        $item->attribute("custom", "value");
+
+        $cart->addItem($item);
+
+        $this->assertEquals("value", $item->attribute("custom"));
+
+        $this->seeInDatabase('merx_cart_items', [
+            "id" => $item->id,
+            "custom_attributes" => json_encode([
+                "custom" => "value"
+            ])
+        ]);
+    }
+
     private function newCart()
     {
         return Cart::create();

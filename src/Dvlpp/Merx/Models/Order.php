@@ -11,12 +11,18 @@ use Dvlpp\Merx\Exceptions\OrderWithThisRefAlreadyExist;
 
 class Order extends Model
 {
+    use WithCustomAttributes;
+
     protected $table = "merx_orders";
 
     protected $fillable = [
         "ref",
         "state",
-        "attributes"
+        "custom_attributes"
+    ];
+
+    protected $casts = [
+        'custom_attributes' => 'array',
     ];
 
     /**

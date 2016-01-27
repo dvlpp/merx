@@ -91,4 +91,31 @@ class OrderTest extends TestCase
             ]);
         }
     }
+
+    /** @test */
+    public function we_can_add_custom_attribute_to_an_order()
+    {
+        $cart = Cart::create();
+        session()->put("merx_cart_id", $cart->id);
+
+        $cart->addItem(new CartItem($this->itemAttributes()));
+
+        $this->loginClient();
+
+        $order = Order::create([
+            "ref" => "123"
+        ]);
+
+        $order->attribute("custom", "value");
+        $order->save();
+
+        $this->assertEquals("value", $order->attribute("custom"));
+
+        $this->seeInDatabase('merx_orders', [
+            "id" => $order->id,
+            "custom_attributes" => json_encode([
+                "custom" => "value"
+            ])
+        ]);
+    }
 }

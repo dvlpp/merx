@@ -18,7 +18,7 @@ class CreateOrdersTable extends Migration
             $table->integer('client_id')->unsigned();
             $table->string("ref")->index();
             $table->string("state");
-            $table->json("attributes")->nullable();
+            $table->json("custom_attributes")->nullable();
 
             $table->foreign('cart_id')
                 ->references('id')

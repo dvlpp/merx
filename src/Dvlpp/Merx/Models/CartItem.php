@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class CartItem extends Model
 {
+    use WithCustomAttributes;
+
     protected $table = "merx_cart_items";
 
     protected $fillable = [
@@ -16,6 +18,10 @@ class CartItem extends Model
         "price",
         "quantity",
         "attributes"
+    ];
+
+    protected $casts = [
+        'custom_attributes' => 'array',
     ];
 
     /**
