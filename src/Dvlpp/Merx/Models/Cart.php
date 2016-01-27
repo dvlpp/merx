@@ -19,9 +19,9 @@ class Cart extends Model
     {
         parent::boot();
 
-        Cart::creating(function ($cart) {
-            $cart->state = "opened";
-        });
+//        Cart::creating(function ($cart) {
+//            $cart->state = "opened";
+//        });
     }
 
     /**
@@ -30,6 +30,14 @@ class Cart extends Model
     public function items()
     {
         return $this->hasMany(CartItem::class, "cart_id");
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function order()
+    {
+        return $this->hasOne(Order::class, "cart_id");
     }
 
     /**
@@ -177,7 +185,8 @@ class Cart extends Model
      */
     public function isOpened()
     {
-        return $this->state == "opened";
+        return $this->order == null
+        || $this->order->state != "completed";
     }
 
     /**
@@ -186,15 +195,6 @@ class Cart extends Model
     public function isEmpty()
     {
         return count($this->items) == 0;
-    }
-
-    /**
-     * Close the cart.
-     */
-    public function close()
-    {
-        $this->state = "closed";
-        $this->save();
     }
 
     /**

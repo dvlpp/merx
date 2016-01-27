@@ -1,6 +1,5 @@
 <?php
 
-use Dvlpp\Merx\Exceptions\CartClosedException;
 use Dvlpp\Merx\Exceptions\EmptyCartException;
 use Dvlpp\Merx\Exceptions\NoCurrentCartException;
 use Dvlpp\Merx\Exceptions\NoCurrentClientException;
@@ -32,8 +31,6 @@ class OrderTest extends TestCase
             "cart_id" => $cart->id,
             "client_id" => $client->id
         ]);
-
-        $this->assertEquals("closed", $order->cart->state);
     }
 
     /** @test */
@@ -76,27 +73,8 @@ class OrderTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function we_cant_make_an_new_order_with_a_closed_cart()
-    {
-        $cart = Cart::create();
-        session()->put("merx_cart_id", $cart->id);
-
-        $this->loginClient();
-
-        $cart->addItem(new CartItem($this->itemAttributes()));
-
-        $cart->close();
-
-        $this->setExpectedException(CartClosedException::class);
-
-        Order::create([
-            "ref" => "123"
-        ]);
-    }
-
-    /** @test */
-    public function we_cant_make_create_an_order_with_an_existing_ref()
+    /** TODO test */
+    public function we_cant_create_an_order_with_an_existing_ref()
     {
         $this->loginClient();
 

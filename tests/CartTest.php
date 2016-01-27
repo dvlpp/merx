@@ -6,6 +6,7 @@ use Dvlpp\Merx\Exceptions\InvalidCartItemException;
 use Dvlpp\Merx\Models\Cart;
 use Dvlpp\Merx\Models\CartItem;
 use Dvlpp\Merx\Models\CartItemMapper;
+use Dvlpp\Merx\Models\Order;
 
 class CartTest extends TestCase
 {
@@ -215,8 +216,20 @@ class CartTest extends TestCase
     public function we_cant_add_an_item_on_a_closed_cart()
     {
         $cart = Cart::create();
+        session()->put("merx_cart_id", $cart->id);
 
-        $cart->close();
+        $cart->addItem(new CartItem($this->itemAttributes()));
+
+        $client = $this->loginClient();
+
+        Order::create([
+            "client_id" => $client->id,
+            "ref" => "123"
+        ])->update([
+            "state" => "completed"
+        ]);
+
+        $cart = $cart->fresh();
 
         $this->setExpectedException(CartClosedException::class);
 

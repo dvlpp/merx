@@ -14,7 +14,6 @@ class CreateCartsTable extends Migration
     {
         Schema::create('merx_carts', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('state')->default("opened");
             $table->timestamps();
         });
     }

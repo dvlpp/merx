@@ -26,7 +26,7 @@ class Order extends Model
     {
         parent::boot();
 
-        Order::saving(function ($order) {
+        Order::creating(function ($order) {
             $cart = merx_current_cart();
             $clientId = merx_current_client_id();
 
@@ -35,15 +35,6 @@ class Order extends Model
             }
 
             static::checkCartIsValid($cart);
-
-            $existingOrder = Order::where("ref", $order->ref)
-                ->first();
-
-            if ($existingOrder) {
-                throw new OrderWithThisRefAlreadyExist();
-            }
-
-            $cart->close();
 
             $order->cart_id = $cart->id;
             $order->client_id = $clientId;
@@ -89,6 +80,16 @@ class Order extends Model
     {
         return $this->cart->total();
     }
+
+//    public function complete()
+//    {
+//        $existingOrder = Order::where("ref", $order->ref)
+//            ->first();
+//
+//        if ($existingOrder) {
+//            throw new OrderWithThisRefAlreadyExist();
+//        }
+//    }
 
     /**
      * @param Cart $cart
