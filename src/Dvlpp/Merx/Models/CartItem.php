@@ -17,7 +17,7 @@ class CartItem extends Model
         "details",
         "price",
         "quantity",
-        "attributes"
+        "custom_attributes"
     ];
 
     protected $casts = [
