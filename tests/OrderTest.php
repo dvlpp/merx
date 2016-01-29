@@ -106,10 +106,9 @@ class OrderTest extends TestCase
             "ref" => "123"
         ]);
 
-        $order->attribute("custom", "value");
-        $order->save();
+        $order->customAttribute("custom", "value");
 
-        $this->assertEquals("value", $order->attribute("custom"));
+        $this->assertEquals("value", $order->customAttribute("custom"));
 
         $this->seeInDatabase('merx_orders', [
             "id" => $order->id,

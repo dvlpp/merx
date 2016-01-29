@@ -312,11 +312,11 @@ class CartTest extends TestCase
         $cart = Cart::create();
 
         $item = new CartItem($this->itemAttributes());
-        $item->attribute("custom", "value");
-
         $cart->addItem($item);
 
-        $this->assertEquals("value", $item->attribute("custom"));
+        $item->customAttribute("custom", "value");
+
+        $this->assertEquals("value", $item->customAttribute("custom"));
 
         $this->seeInDatabase('merx_cart_items', [
             "id" => $item->id,

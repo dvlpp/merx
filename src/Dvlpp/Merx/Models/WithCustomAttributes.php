@@ -10,7 +10,7 @@ trait WithCustomAttributes
      * @param string|null $value
      * @return string|null
      */
-    public function attribute($name, $value = null)
+    public function customAttribute($name, $value = null)
     {
         if (!$value) {
             return $this->custom_attributes[$name];
@@ -20,5 +20,6 @@ trait WithCustomAttributes
         $attrs = $this->custom_attributes;
         $attrs[$name] = $value;
         $this->custom_attributes = $attrs;
+        $this->save();
     }
 }
