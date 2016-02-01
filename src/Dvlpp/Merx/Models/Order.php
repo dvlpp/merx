@@ -2,6 +2,7 @@
 
 namespace Dvlpp\Merx\Models;
 
+use Dvlpp\Merx\Utils\OrderRefGeneratorFactory;
 use Illuminate\Database\Eloquent\Model;
 use Dvlpp\Merx\Exceptions\EmptyCartException;
 use Dvlpp\Merx\Exceptions\CartClosedException;
@@ -33,16 +34,28 @@ class Order extends Model
         parent::boot();
 
         Order::creating(function ($order) {
-            $cart = merx_current_cart();
             $clientId = merx_current_client_id();
 
             if (!$clientId) {
                 throw new NoCurrentClientException();
             }
 
+            $cart = $order->cart;
+            if (!$cart) {
+                $cart = merx_current_cart();
+                $order->cart_id = $cart ? $cart->id : null;
+            }
+
             static::checkCartIsValid($cart);
 
-            $order->cart_id = $cart->id;
+            if (!$order->ref) {
+                // Have to generate a unique ref
+                $order->ref = static::generateRef();
+
+            } elseif (Order::where("ref", $order->ref)->count()) {
+                throw new OrderWithThisRefAlreadyExist();
+            }
+
             $order->client_id = $clientId;
             $order->state = "draft";
         });
@@ -85,6 +98,20 @@ class Order extends Model
     public function total()
     {
         return $this->cart->total();
+    }
+
+    /**
+     * Generate a unique ref for the new Order.
+     *
+     * @return string
+     */
+    protected static function generateRef()
+    {
+        $generatorName = config("merx.order_ref_generator", "increment");
+
+        $generator = OrderRefGeneratorFactory::create($generatorName);
+
+        return $generator->generate();
     }
 
 //    public function complete()

@@ -73,7 +73,7 @@ class OrderTest extends TestCase
         ]);
     }
 
-    /** TODO test */
+    /** @test */
     public function we_cant_create_an_order_with_an_existing_ref()
     {
         $this->loginClient();
@@ -93,14 +93,92 @@ class OrderTest extends TestCase
     }
 
     /** @test */
+    public function we_cant_use_the_increment_ref_generator()
+    {
+        $this->app['config']->set('merx.order_ref_generator', 'increment');
+
+        $this->createCartAndClient();
+
+        $order1 = Order::create();
+        $order2 = Order::create();
+
+        $this->seeInDatabase('merx_orders', [
+            "id" => $order1->id,
+            "ref" => "1"
+        ]);
+
+        $this->seeInDatabase('merx_orders', [
+            "id" => $order2->id,
+            "ref" => "2"
+        ]);
+    }
+
+    /** @test */
+    public function we_cant_use_the_date_and_increment_ref_generator()
+    {
+        $this->app['config']->set('merx.order_ref_generator', 'date-and-increment');
+
+        $this->createCartAndClient();
+
+        // Simulate a yesterday order
+        Order::create([
+            "ref" => date("Ymd", time() - 24 * 60 * 60) . "-1"
+        ]);
+        $order1 = Order::create();
+        $order2 = Order::create();
+
+        $this->seeInDatabase('merx_orders', [
+            "id" => $order1->id,
+            "ref" => date("Ymd") . "-2"
+        ]);
+
+        $this->seeInDatabase('merx_orders', [
+            "id" => $order2->id,
+            "ref" => date("Ymd") . "-3"
+        ]);
+    }
+
+    /** @test */
+    public function we_cant_use_the_date_and_day_increment_ref_generator()
+    {
+        $this->app['config']->set('merx.order_ref_generator', 'date-and-day-increment');
+
+        $this->createCartAndClient();
+
+        // Simulate a yesterday order
+        Order::create([
+            "ref" => date("Ymd", time() - 24 * 60 * 60) . "-1"
+        ]);
+        $order1 = Order::create();
+        $order2 = Order::create();
+
+        $this->seeInDatabase('merx_orders', [
+            "id" => $order1->id,
+            "ref" => date("Ymd") . "-1"
+        ]);
+
+        $this->seeInDatabase('merx_orders', [
+            "id" => $order2->id,
+            "ref" => date("Ymd") . "-2"
+        ]);
+    }
+
+    /** @test */
+    public function we_cant_use_a_custom_ref_generator()
+    {
+        $this->app['config']->set('merx.order_ref_generator', CustomOrderRefGenerator::class);
+
+        $this->createCartAndClient();
+
+        Order::create();
+        Order::create();
+        Order::create();
+    }
+
+    /** @test */
     public function we_can_add_custom_attribute_to_an_order()
     {
-        $cart = Cart::create();
-        session()->put("merx_cart_id", $cart->id);
-
-        $cart->addItem(new CartItem($this->itemAttributes()));
-
-        $this->loginClient();
+        $this->createCartAndClient();
 
         $order = Order::create([
             "ref" => "123"
@@ -121,12 +199,7 @@ class OrderTest extends TestCase
     /** @test */
     public function we_can_add_multiple_custom_attributes_at_once_to_an_order()
     {
-        $cart = Cart::create();
-        session()->put("merx_cart_id", $cart->id);
-
-        $cart->addItem(new CartItem($this->itemAttributes()));
-
-        $this->loginClient();
+        $this->createCartAndClient();
 
         $order = Order::create([
             "ref" => "123"
@@ -147,5 +220,29 @@ class OrderTest extends TestCase
                 "custom2" => "value2"
             ])
         ]);
+    }
+
+    protected function createCartAndClient()
+    {
+        $cart = Cart::create();
+        session()->put("merx_cart_id", $cart->id);
+
+        $cart->addItem(new CartItem($this->itemAttributes()));
+
+        $this->loginClient();
+    }
+}
+
+class CustomOrderRefGenerator implements \Dvlpp\Merx\Utils\OrderRefGenerator\OrderRefGenerator
+{
+
+    /**
+     * Generate a unique ref for a new Order.
+     *
+     * @return string
+     */
+    function generate()
+    {
+        return uniqid();
     }
 }

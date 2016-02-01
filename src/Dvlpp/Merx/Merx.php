@@ -42,7 +42,7 @@ class Merx
     /**
      * Store a new order based on the session's cart and client.
      *
-     * @param string $orderRef
+     * @param string|null $orderRef
      * @return Order
      *
      * @throws NoCurrentClientException
