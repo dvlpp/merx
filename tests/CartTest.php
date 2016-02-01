@@ -314,7 +314,7 @@ class CartTest extends TestCase
         $item = new CartItem($this->itemAttributes());
         $cart->addItem($item);
 
-        $item->customAttribute("custom", "value");
+        $item->setCustomAttribute("custom", "value");
 
         $this->assertEquals("value", $item->customAttribute("custom"));
 

@@ -106,7 +106,7 @@ class OrderTest extends TestCase
             "ref" => "123"
         ]);
 
-        $order->customAttribute("custom", "value");
+        $order->setCustomAttribute("custom", "value");
 
         $this->assertEquals("value", $order->customAttribute("custom"));
 
@@ -114,6 +114,37 @@ class OrderTest extends TestCase
             "id" => $order->id,
             "custom_attributes" => json_encode([
                 "custom" => "value"
+            ])
+        ]);
+    }
+
+    /** @test */
+    public function we_can_add_multiple_custom_attributes_at_once_to_an_order()
+    {
+        $cart = Cart::create();
+        session()->put("merx_cart_id", $cart->id);
+
+        $cart->addItem(new CartItem($this->itemAttributes()));
+
+        $this->loginClient();
+
+        $order = Order::create([
+            "ref" => "123"
+        ]);
+
+        $order->setMultipleCustomAttribute([
+            "custom" => "value",
+            "custom2" => "value2",
+        ]);
+
+        $this->assertEquals("value", $order->customAttribute("custom"));
+        $this->assertEquals("value2", $order->customAttribute("custom2"));
+
+        $this->seeInDatabase('merx_orders', [
+            "id" => $order->id,
+            "custom_attributes" => json_encode([
+                "custom" => "value",
+                "custom2" => "value2"
             ])
         ]);
     }
