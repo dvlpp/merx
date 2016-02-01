@@ -32,12 +32,11 @@ class Merx
     }
 
     /**
-     * @param string $ref
      * @return Order
      */
-    public function order($ref)
+    public function order()
     {
-        return Order::where("ref", $ref)->first();
+        return $this->cart()->order;
     }
 
     /**
@@ -52,15 +51,15 @@ class Merx
      * @throws NoCurrentCartException
      * @throws OrderWithThisRefAlreadyExist
      */
-    public function newOrderFromCart($orderRef)
+    public function newOrderFromCart($orderRef = null)
     {
         // Create order from session's cart
-        $order = Order::create([
-            "ref" => $orderRef,
+        $order = $this->cart()->order()->create([
+            "ref" => $orderRef
         ]);
 
-        // Remove cart from session
-        session()->forget("merx_cart_id");
+        // Force cart DB refresh on next call to reflect this association
+        $this->cart = null;
 
         return $order;
     }

@@ -41,9 +41,26 @@ class MerxTest extends TestCase
 
         $this->loginClient();
 
-        $merx->newOrderFromCart("123");
+        $order = $merx->newOrderFromCart("123");
 
-        $this->assertNull(session("merx_cart_id"));
+        $this->seeInDatabase('merx_orders', [
+            "id" => $order->id,
+        ]);
+    }
+
+    /** @test */
+    public function we_can_get_the_current_order()
+    {
+        $merx = new Merx();
+
+        $cart = $merx->cart();
+        $cart->addItem($this->itemAttributes());
+
+        $this->loginClient();
+
+        $order = $merx->newOrderFromCart("123");
+
+        $this->assertEquals($order->id, $merx->order()->id);
     }
 
     /** @test */
