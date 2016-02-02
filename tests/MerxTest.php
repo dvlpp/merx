@@ -36,12 +36,7 @@ class MerxTest extends TestCase
     {
         $merx = new Merx();
 
-        $cart = $merx->cart();
-        $cart->addItem($this->itemAttributes());
-
-        $this->loginClient();
-
-        $order = $merx->newOrderFromCart("123");
+        $order = $this->createNewOrder($merx);
 
         $this->seeInDatabase('merx_orders', [
             "id" => $order->id,
@@ -53,14 +48,26 @@ class MerxTest extends TestCase
     {
         $merx = new Merx();
 
-        $cart = $merx->cart();
-        $cart->addItem($this->itemAttributes());
-
-        $this->loginClient();
-
-        $order = $merx->newOrderFromCart("123");
+        $order = $this->createNewOrder($merx);
 
         $this->assertEquals($order->id, $merx->order()->id);
+    }
+
+    /** @test */
+    public function we_can_complete_the_current_order()
+    {
+        $merx = new Merx();
+
+        $order = $this->createNewOrder($merx);
+
+        $merx->completeOrder();
+
+        $this->seeInDatabase('merx_orders', [
+            "id" => $order->id,
+            "state" => "completed"
+        ]);
+
+        $this->assertNull(session("merx_cart_id"));
     }
 
     /** @test */
@@ -69,6 +76,24 @@ class MerxTest extends TestCase
         $cart = MerxFacade::cart();
 
         $this->assertInstanceOf(Cart::class, $cart);
+    }
+
+    /**
+     * @param Merx $merx
+     * @return \Dvlpp\Merx\Models\Order
+     * @throws \Dvlpp\Merx\Exceptions\CartClosedException
+     * @throws \Dvlpp\Merx\Exceptions\InvalidCartItemException
+     */
+    protected function createNewOrder(Merx $merx)
+    {
+        $cart = $merx->cart();
+        $cart->addItem($this->itemAttributes());
+
+        $this->loginClient();
+
+        $order = $merx->newOrderFromCart("123");
+
+        return $order;
     }
 
 }

@@ -114,15 +114,23 @@ class Order extends Model
         return $generator->generate();
     }
 
-//    public function complete()
-//    {
-//        $existingOrder = Order::where("ref", $order->ref)
-//            ->first();
-//
-//        if ($existingOrder) {
-//            throw new OrderWithThisRefAlreadyExist();
-//        }
-//    }
+    /**
+     * Complete the order: close it
+     *
+     * @throws CartClosedException
+     * @throws EmptyCartException
+     * @throws NoCurrentCartException
+     * @return $this
+     */
+    public function complete()
+    {
+        $this->checkCartIsValid($this->cart);
+
+        $this->state = "completed";
+        $this->save();
+
+        return $this;
+    }
 
     /**
      * @param Cart $cart

@@ -2,6 +2,7 @@
 
 namespace Dvlpp\Merx;
 
+use Dvlpp\Merx\Exceptions\NoCurrentOrderException;
 use Dvlpp\Merx\Models\Cart;
 use Dvlpp\Merx\Models\Order;
 use Dvlpp\Merx\Exceptions\EmptyCartException;
@@ -60,6 +61,30 @@ class Merx
 
         // Force cart DB refresh on next call to reflect this association
         $this->cart = null;
+
+        return $order;
+    }
+
+    /**
+     * Close the order, remove cart from session.
+     *
+     * @throws NoCurrentOrderException
+     * @throws CartClosedException
+     * @throws EmptyCartException
+     * @throws NoCurrentCartException
+     * @return Order
+     */
+    public function completeOrder()
+    {
+        $order = $this->order();
+
+        if (!$order) {
+            throw new NoCurrentOrderException;
+        }
+
+        $order->complete();
+
+        session()->forget("merx_cart_id");
 
         return $order;
     }

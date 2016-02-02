@@ -13,18 +13,6 @@ class Cart extends Model
     protected $table = "merx_carts";
 
     /**
-     * Assign session_id to new cart
-     */
-    public static function boot()
-    {
-        parent::boot();
-
-//        Cart::creating(function ($cart) {
-//            $cart->state = "opened";
-//        });
-    }
-
-    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function items()
@@ -185,8 +173,7 @@ class Cart extends Model
      */
     public function isOpened()
     {
-        return $this->order == null
-        || $this->order->state != "completed";
+        return $this->order == null || $this->order->state != "completed";
     }
 
     /**
