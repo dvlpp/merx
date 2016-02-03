@@ -21,6 +21,11 @@ class MerxServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../../../database/migrations/' => database_path('migrations')
         ], 'migrations');
+
+        // Publish config
+        $this->publishes([
+            __DIR__ . '/../../../config/merx.php' => config_path('merx.php')
+        ], 'config');
     }
 
     /**
