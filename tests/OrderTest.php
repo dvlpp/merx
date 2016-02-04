@@ -98,6 +98,23 @@ class OrderTest extends TestCase
     }
 
     /** @test */
+    public function we_cant_complete_an_order_with_an_empty_cart()
+    {
+        $cart = Cart::create();
+        session()->put("merx_cart_id", $cart->id);
+
+        $this->loginClient();
+
+        $order = Order::create([
+            "ref" => "aaa"
+        ]);
+
+        $this->setExpectedException(EmptyCartException::class);
+
+        $order->complete();
+    }
+
+    /** @test */
     public function we_cant_use_the_increment_ref_generator()
     {
         $this->app['config']->set('merx.order_ref_generator', 'increment');

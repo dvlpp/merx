@@ -43,7 +43,7 @@ class Order extends Model
             $cart = $order->cart;
             if (!$cart) {
                 $cart = merx_current_cart();
-                $order->cart_id = $cart ? $cart->id : null;
+                $order->cart()->associate($cart);
             }
 
             static::checkCartIsValid($cart);
@@ -124,7 +124,7 @@ class Order extends Model
      */
     public function complete()
     {
-        $this->checkCartIsValid($this->cart);
+        $this->checkCartIsValid($this->cart, true);
 
         $this->state = "completed";
         $this->save();
@@ -134,10 +134,12 @@ class Order extends Model
 
     /**
      * @param Cart $cart
+     * @param bool $checkIfEmpty
      * @throws CartClosedException
+     * @throws EmptyCartException
      * @throws NoCurrentCartException
      */
-    private static function checkCartIsValid($cart)
+    private static function checkCartIsValid($cart, $checkIfEmpty = false)
     {
         if (!$cart) {
             throw new NoCurrentCartException();
@@ -145,6 +147,10 @@ class Order extends Model
 
         if (!$cart->isOpened()) {
             throw new CartClosedException();
+        }
+
+        if ($checkIfEmpty && $cart->isEmpty()) {
+            throw new EmptyCartException();
         }
     }
 }
