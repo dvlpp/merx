@@ -34,17 +34,22 @@ class OrderTest extends TestCase
     }
 
     /** @test */
-    public function we_cant_make_a_new_order_with_an_empty_cart()
+    public function we_can_make_a_new_order_with_an_empty_cart()
     {
         $cart = Cart::create();
         session()->put("merx_cart_id", $cart->id);
 
-        $this->loginClient();
+        $client = $this->loginClient();
 
-        $this->setExpectedException(EmptyCartException::class);
-
-        Order::create([
+        $order = Order::create([
             "ref" => "123"
+        ]);
+
+        $this->seeInDatabase('merx_orders', [
+            "id" => $order->id,
+            "ref" => "123",
+            "cart_id" => $cart->id,
+            "client_id" => $client->id
         ]);
     }
 

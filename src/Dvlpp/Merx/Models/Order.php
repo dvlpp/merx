@@ -135,7 +135,6 @@ class Order extends Model
     /**
      * @param Cart $cart
      * @throws CartClosedException
-     * @throws EmptyCartException
      * @throws NoCurrentCartException
      */
     private static function checkCartIsValid($cart)
@@ -146,10 +145,6 @@ class Order extends Model
 
         if (!$cart->isOpened()) {
             throw new CartClosedException();
-        }
-
-        if ($cart->isEmpty()) {
-            throw new EmptyCartException();
         }
     }
 }
