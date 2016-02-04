@@ -73,7 +73,19 @@ class Cart extends Model
             return $existingItem;
         }
 
-        return $this->items()->save($item);
+        // If the relationship was already loaded, only saving
+        // the related item won't update the model's collection,
+        // we need explicitely push it so they stay in sync.
+        if($this->relationLoaded('items'))
+        {
+            $savedItem = $this->items()->save($item);    
+            $this->items->push($savedItem);
+            return $savedItem;
+        }
+        else
+        {
+            return $this->items()->save($item);
+        }
     }
 
     /**

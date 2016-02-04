@@ -18,6 +18,8 @@ class CartTest extends TestCase
 
         $cart = $this->newCart();
 
+        $this->assertCount(0, $cart->items);
+
         $item = $cart->addItem($itemAttributes);
 
         $this->assertCount(1, $cart->items);
