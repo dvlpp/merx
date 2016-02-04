@@ -66,6 +66,11 @@ Run <code>php artisan migrate</code> to add the 3 Merx tables:
 - merx_cart_items
 - merx_orders
 
+### Adapt your User class
+
+Finally, Merx use the Laravel auth system, with the standard User class.
+This means
+
 ## Usage
 
 Following examples use the Façade, but if you're anything like me,
@@ -135,8 +140,11 @@ in the merx_orders table:
 This action will throw an exception if:
 
 - there's no cart
-- the cart is empty
-- there's no current authentified client
+- or there's no current authentified client
+
+On the second case: Merx is assuming that you use the standard Laravel auth system.
+The idea is that if there's no current auth user, you can
+redirect to a login page.
 
 ## License
 
