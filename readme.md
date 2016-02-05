@@ -58,10 +58,11 @@ cart item, returning and array with these keys:
 - <code>name</code>: the item name
 - <code>price</code>: the item price, in cents
 - <code>details</code>: item details (optional)
-- <code>quantity</code>: the item quantity. Can be missing if quantity is set at the <code>addItem()</code> state.
 - <code>article_id</code>: the model object id
 - <code>article_type</code>: the model object full class name
 
+And <code>quantity</code>: the item quantity, which can be
+missing if quantity is set at the <code>addItem()</code> state.
 
     "order_ref_generator" => "date-and-day-increment",
 
