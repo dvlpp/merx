@@ -88,7 +88,7 @@ class TestUser extends \Illuminate\Database\Eloquent\Model implements Illuminate
     use Illuminate\Auth\Authenticatable;
 
     protected $table = 'users';
-    protected $fillable = ['*'];
+    protected $fillable = ['id'];
 
     public function isMerxUser()
     {
@@ -99,7 +99,11 @@ class TestUser extends \Illuminate\Database\Eloquent\Model implements Illuminate
 class TestArticle extends \Illuminate\Database\Eloquent\Model
 {
     protected $table = 'articles';
-    protected $fillable = ['*'];
+    protected $fillable = ["id"];
+
+    public static $merxCartItemAttributesExceptions = [
+        "custom_out_of_id"
+    ];
 }
 
 class CreateTestUsersTable extends Migration

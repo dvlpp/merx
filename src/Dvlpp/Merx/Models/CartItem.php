@@ -2,6 +2,7 @@
 
 namespace Dvlpp\Merx\Models;
 
+use Dvlpp\Merx\Exceptions\InvalidCartItemException;
 use Illuminate\Database\Eloquent\Model;
 
 class CartItem extends Model
@@ -23,6 +24,32 @@ class CartItem extends Model
     protected $casts = [
         'custom_attributes' => 'array',
     ];
+
+    public static function newItemWith(array $attributes)
+    {
+        $validator = validator($attributes, [
+            "article_id" => "required",
+            "article_type" => "required",
+            "name" => "required",
+            "price" => "required|int",
+            "quantity" => "int",
+            "attributes" => "array"
+        ]);
+
+        if ($validator->fails()) {
+            throw new InvalidCartItemException;
+        }
+
+        $item = new static($attributes);
+
+        if (isset($attributes["attributes"])) {
+            foreach ($attributes["attributes"] as $attribute => $value) {
+                $item->setCustomAttribute($attribute, $value, false);
+            }
+        }
+
+        return $item;
+    }
 
     /**
      * @return int

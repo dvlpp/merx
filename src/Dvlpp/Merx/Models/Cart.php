@@ -2,11 +2,11 @@
 
 namespace Dvlpp\Merx\Models;
 
-use Dvlpp\Merx\Exceptions\CartItemNotFoundException;
-use Dvlpp\Merx\Exceptions\InvalidCartItemException;
 use Illuminate\Database\Eloquent\Model;
 use Dvlpp\Merx\Exceptions\MapperException;
 use Dvlpp\Merx\Exceptions\CartClosedException;
+use Dvlpp\Merx\Exceptions\InvalidCartItemException;
+use Dvlpp\Merx\Exceptions\CartItemNotFoundException;
 
 class Cart extends Model
 {
@@ -29,60 +29,62 @@ class Cart extends Model
     }
 
     /**
-     * @param array|object $attributes
+     * Add a CartItem to the Cart.
+     *
+     * @param $item
      * @param int|null $quantity
      * @return static
      * @throws CartClosedException
      * @throws InvalidCartItemException
      * @throws MapperException
      */
-    public function addItem($attributes, $quantity = null)
+    public function addItem($item, $quantity = null)
     {
         if (!$this->isOpened()) {
             throw new CartClosedException();
         }
 
-        // We first consider that $attributes is an instance of CartItem
-        $item = $attributes;
+        if (!$item instanceof CartItem) {
+            $item = $this->buildCartItem($item);
 
-        if (is_array($attributes)) {
-            $item = new CartItem($attributes);
+            if ($quantity) {
+                $item->quantity = $quantity;
 
-        } elseif (is_object($attributes) && !$attributes instanceof CartItem) {
-            // Mapping case: we try to insert a "domain" object
-            $item = merx_item_map($attributes);
+            } elseif ($item->quantity == 0) {
+                $item->quantity = 1;
+            }
+
+            // If item already exist, we add up quantities
+            $existingItem = $this->findItemWithSameArticle($item);
+            if ($existingItem) {
+                $existingItem->quantity += $item->quantity;
+                $existingItem->save();
+
+                return $existingItem;
+            }
         }
 
-        if (!$item || !$item instanceof CartItem) {
-            throw new InvalidCartItemException;
+        $savedItem = $this->items()->save($item);
+
+        // If the relationship was already loaded, only saving
+        // the related item won't update the model's collection,
+        // we need explicitly push it so they stay in sync.
+        if ($this->relationLoaded('items')) {
+            $this->items->push($savedItem);
         }
 
-        if ($quantity) {
-            $item->quantity = $quantity;
-
-        } elseif ($item->quantity == 0) {
-            $item->quantity = 1;
-        }
-
-        // If item already exist, we add up quantities
-        $existingItem = $this->findItem($item->article_id);
-        if ($existingItem) {
-            $existingItem->quantity += $item->quantity;
-            $existingItem->save();
-
-            return $existingItem;
-        }
-
-        return $this->items()->save($item);
+        return $savedItem;
     }
 
     /**
-     * @param string|CartItem|Object $itemRef
+     * Remove an item from the Cart
+     *
+     * @param int|CartItem $itemId
      * @return $this
      */
-    public function removeItem($itemRef)
+    public function removeItem($itemId)
     {
-        $removableItem = $this->getItemFromRefOrItemOrObject($itemRef);
+        $removableItem = $this->findItem($itemId);
 
         foreach ($this->items as $key => $cartItem) {
             if ($cartItem->article_id != $removableItem->article_id) {
@@ -98,23 +100,16 @@ class Cart extends Model
     }
 
     /**
-     * @param $ref
+     * @param int $itemId
      * @return CartItem|null
      */
-    public function findItem($ref)
+    public function findItem($itemId)
     {
-        return $this->items()
-            ->where("article_id", $ref)
-            ->first();
-    }
+        if ($itemId instanceof CartItem) {
+            $itemId = $itemId->id;
+        }
 
-    /**
-     * @param int $id
-     * @return CartItem|null
-     */
-    public function getItem($id)
-    {
-        return $this->items()->find($id);
+        return $this->items()->find($itemId);
     }
 
     /**
@@ -128,14 +123,14 @@ class Cart extends Model
     }
 
     /**
-     * @param string|CartItem|Object $itemRef
+     * @param int|CartItem $itemId
      * @param int $quantity
      * @return $this
      * @throws CartItemNotFoundException
      */
-    public function updateItemQuantity($itemRef, $quantity)
+    public function updateItemQuantity($itemId, $quantity)
     {
-        $updatableItem = $this->getItemFromRefOrItemOrObject($itemRef);
+        $updatableItem = $this->findItem($itemId);
 
         if (!$updatableItem) {
             throw new CartItemNotFoundException;
@@ -185,21 +180,100 @@ class Cart extends Model
     }
 
     /**
-     * @param string|CartItem|Object $itemRef
-     * @return CartItem|null
+     * Map a CartItem from a domain object.
+     *
+     * @param $object
+     * @return CartItem
      * @throws MapperException
      */
-    protected function getItemFromRefOrItemOrObject($itemRef)
+    private function mapCartItem($object)
     {
-        if ($itemRef instanceof CartItem) {
-            return $itemRef;
+        $mapper = $this->newCartItemDomainMapperInstance();
+        $attributes = $mapper->mapCartItemAttributes($object);
+
+        $cartItem = CartItem::newItemWith($attributes);
+
+        return $cartItem;
+    }
+
+    /**
+     * Build a CartItem object from an attributes array
+     * or a domain object to be mapped.
+     *
+     * @param array|object $item
+     * @return CartItem
+     * @throws InvalidCartItemException
+     * @throws MapperException
+     */
+    protected function buildCartItem($item)
+    {
+        if (is_array($item)) {
+            // Attributes array case
+            $item = CartItem::newItemWith($item);
+
+        } elseif (is_object($item)) {
+            // Mapping case: we try to insert a "domain" object
+            $item = $this->mapCartItem($item);
         }
 
-        if (is_object($itemRef)) {
-            $item = merx_item_map($itemRef);
-            $itemRef = $item->article_id;
+        if (!$item instanceof CartItem) {
+            throw new InvalidCartItemException;
         }
 
-        return $this->findItem($itemRef);
+        return $item;
+    }
+
+    /**
+     * @param CartItem $item
+     * @return CartItem|null
+     */
+    private function findItemWithSameArticle(CartItem $item)
+    {
+        $items = $this->items()->where("article_id", $item->article_id)
+            ->where("article_type", $item->article_type)
+            ->get();
+
+        // Check if there's some custom attributes to ignore in
+        // the item comparison
+        $domainClass = $item->article_type;
+        $attrToExcept = isset($domainClass::$merxCartItemAttributesExceptions)
+            ? $domainClass::$merxCartItemAttributesExceptions
+            : [];
+
+        foreach ($items as $sameItem) {
+
+            if (!sizeof($item->allCustomAttributes()->except($attrToExcept))
+                && !sizeof($sameItem->allCustomAttributes()->except($attrToExcept))
+            ) {
+                // Both without attributes: same item
+                return $sameItem;
+            }
+
+            foreach ($item->allCustomAttributes()->except($attrToExcept) as $attribute => $value) {
+                if ($sameItem->customAttribute($attribute) != $value) {
+                    continue 2;
+                }
+            }
+
+            // All attributes identical: same item
+            return $sameItem;
+        }
+
+        return null;
+    }
+
+    /**
+     * @return mixed
+     * @throws MapperException
+     */
+    private function newCartItemDomainMapperInstance()
+    {
+        $mapperClass = config("merx.item_mapper");
+
+        if (!$mapperClass) {
+            throw new MapperException("The merx.item_mapper config was not found.");
+        }
+
+        return new $mapperClass;
     }
 }

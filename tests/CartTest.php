@@ -18,6 +18,9 @@ class CartTest extends TestCase
 
         $cart = $this->newCart();
 
+        // We explicitly load the relation to ensure it is updated
+        $this->assertCount(0, $cart->items);
+
         $item = $cart->addItem($itemAttributes);
 
         $this->assertCount(1, $cart->items);
@@ -31,20 +34,6 @@ class CartTest extends TestCase
     }
 
     /** @test */
-    public function we_can_find_an_exisiting_item_by_its_article_ref()
-    {
-        $itemAttributes = $this->itemAttributes();
-        $itemRef = $itemAttributes["article_id"];
-
-        $cart = $this->newCart();
-        $cart->addItem($itemAttributes);
-
-        $item = $cart->findItem($itemRef);
-
-        $this->assertInstanceOf(CartItem::class, $item);
-    }
-
-    /** @test */
     public function we_can_get_an_exisiting_item_by_its_id()
     {
         $itemAttributes = $this->itemAttributes();
@@ -52,7 +41,7 @@ class CartTest extends TestCase
         $cart = $this->newCart();
         $item = $cart->addItem($itemAttributes);
 
-        $item2 = $cart->getItem($item->id);
+        $item2 = $cart->findItem($item->id);
 
         $this->assertInstanceOf(CartItem::class, $item2);
         $this->assertEquals($item->id, $item2->id);
@@ -99,8 +88,8 @@ class CartTest extends TestCase
         $cart->items()->save($item);
         $cart->items()->save($item2);
 
-        // Remove first item by ref
-        $cart->removeItem($item2->article_id);
+        // Remove first item by id
+        $cart->removeItem($item2->id);
 
         $this->assertCount(1, $cart->items);
 
@@ -121,13 +110,7 @@ class CartTest extends TestCase
     /** @test */
     public function we_can_add_a_mapped_product_in_the_cart()
     {
-        $product = new stdClass();
-        $product->id = 123;
-        $product->label = "T-shirt";
-        $product->price = 22.50;
-        $product->description = "A nice blue t-shirt";
-
-        $this->app['config']->set('merx.item_mapper', ProductToCartItemMapper::class);
+        $product = $this->createMappedDomainObject();
 
         $cart = $this->newCart();
         $cart->addItem($product, 1);
@@ -135,36 +118,25 @@ class CartTest extends TestCase
         $this->assertCount(1, $cart->items);
 
         $this->seeInDatabase('merx_cart_items', [
-            "article_id" => "123",
-            "name" => "T-shirt",
-            "price" => 2250,
-            "details" => "A nice blue t-shirt",
+            "article_id" => $product->id,
+            "name" => $product->label,
+            "price" => $product->price * 100,
+            "details" => $product->description,
             "cart_id" => $cart->id
         ]);
     }
 
     /** @test */
-    public function we_can_remove_a_mapped_product_from_the_cart()
+    public function we_cant_add_an_item_with_invalid_attributes_in_the_cart()
     {
-        $product = new stdClass();
-        $product->id = "123";
-        $product->label = "T-shirt";
-        $product->price = 22.50;
-        $product->description = "A nice blue t-shirt";
-
-        $this->app['config']->set('merx.item_mapper', ProductToCartItemMapper::class);
+        $attributes = $this->itemAttributes();
+        unset($attributes["name"]);
 
         $cart = $this->newCart();
-        $cartItem = $cart->addItem($product, 1);
 
-        // Remove item passing the original object
-        $cart->removeItem($product);
+        $this->setExpectedException(InvalidCartItemException::class);
 
-        $this->assertCount(0, $cart->items);
-
-        $this->dontSeeInDatabase('merx_cart_items', [
-            "id" => $cartItem->id
-        ]);
+        $cart->addItem($attributes);
     }
 
     /** @test */
@@ -177,7 +149,7 @@ class CartTest extends TestCase
         $cart->addItem($item);
 
         // Update qty passing ref
-        $cart->updateItemQuantity($item->article_id, 2);
+        $cart->updateItemQuantity($item, 2);
 
         $this->seeInDatabase('merx_cart_items', [
             "id" => $item->id,
@@ -255,7 +227,7 @@ class CartTest extends TestCase
     }
 
     /** @test */
-    public function when_adding_an_item_which_already_exists_in_cart_we_add_up_quantities()
+    public function when_adding_2_items_with_same_article_and_no_custom_attribute_we_add_up_quantities()
     {
         $cart = $this->newCart();
 
@@ -264,6 +236,93 @@ class CartTest extends TestCase
 
         $cart->addItem($itemAttributes);
         $cart->addItem($itemAttributes);
+
+        $this->assertEquals(2, $cart->itemsCount());
+        $this->assertCount(1, $cart->items);
+    }
+
+    /** @test */
+    public function when_adding_2_items_with_same_article_and_same_custom_attributes_we_add_up_quantities()
+    {
+        $cart = $this->newCart();
+
+        $itemAttributes = $this->itemAttributes();
+        $itemAttributes["quantity"] = 1;
+        $itemAttributes["attributes"] = [
+            "custom" => "value"
+        ];
+
+        $cart->addItem($itemAttributes);
+        $cart->addItem($itemAttributes);
+
+        $this->assertEquals(2, $cart->itemsCount());
+        $this->assertCount(1, $cart->items);
+    }
+
+    /** @test */
+    public function when_adding_2_items_with_same_article_and_different_custom_attributes_we_dont_add_up_quantities()
+    {
+        $cart = $this->newCart();
+
+        $itemAttributes = $this->itemAttributes();
+        $itemAttributes["quantity"] = 1;
+        $itemAttributes["attributes"] = [
+            "custom" => "value"
+        ];
+        $cart->addItem($itemAttributes);
+
+        $itemAttributes["attributes"] = [
+            "custom" => "aDifferentValue"
+        ];
+        $cart->addItem($itemAttributes);
+
+        $this->assertEquals(2, $cart->itemsCount());
+        $this->assertCount(2, $cart->items);
+    }
+
+    /** @test */
+    public function when_adding_2_mapped_objects_with_same_article_and_different_custom_attributes_we_dont_add_up_quantities(
+    )
+    {
+        $cart = $this->newCart();
+
+        $product = $this->createMappedDomainObject(1);
+        $product->attributes = [
+            "custom" => "value"
+        ];
+
+        $product2 = $this->createMappedDomainObject(1);
+        $product2->attributes = [
+            "custom" => "value2"
+        ];
+
+        $cart->addItem($product, 1);
+        $cart->addItem($product2, 1);
+
+        $this->assertEquals(2, $cart->itemsCount());
+        $this->assertCount(2, $cart->items);
+    }
+
+    /** @test */
+    public function when_adding_2_mapped_objects_with_same_article_and_different_custom_attributes_with_except_rules_we_dont_add_up_quantities(
+    )
+    {
+        $cart = $this->newCart();
+
+        $product = $this->createMappedDomainObject(1);
+        // This attribute is an exception defined in CartItemMapper.customAttributesNotPartOfId() method
+        // and must be ignored when comparing 2 items for equality
+        $product->attributes = [
+            "custom_out_of_id" => "value"
+        ];
+
+        $product2 = $this->createMappedDomainObject(1);
+        $product2->attributes = [
+            "custom_out_of_id" => "aDifferentValue"
+        ];
+
+        $cart->addItem($product, 1);
+        $cart->addItem($product2, 1);
 
         $this->assertEquals(2, $cart->itemsCount());
         $this->assertCount(1, $cart->items);
@@ -326,9 +385,76 @@ class CartTest extends TestCase
         ]);
     }
 
+    /** @test */
+    public function we_can_add_an_item_with_custom_attributes()
+    {
+        $cart = Cart::create();
+
+        $attributes = $this->itemAttributes();
+        $attributes["attributes"]["custom"] = "value";
+
+        $item = $cart->addItem($attributes);
+
+        $this->assertEquals("value", $item->customAttribute("custom"));
+
+        $this->seeInDatabase('merx_cart_items', [
+            "id" => $item->id,
+            "custom_attributes" => json_encode([
+                "custom" => "value"
+            ])
+        ]);
+    }
+
+    /** @test */
+    public function we_can_add_a_mapped_product_with_custom_attributes()
+    {
+        $product = $this->createMappedDomainObject();
+        $product->attributes = [
+            "custom" => "value"
+        ];
+
+        $this->app['config']->set('merx.item_mapper', ProductToCartItemMapper::class);
+
+        $cart = $this->newCart();
+        $cart->addItem($product, 1);
+
+        $this->seeInDatabase('merx_cart_items', [
+            "article_id" => $product->id,
+            "name" => $product->label,
+            "price" => $product->price * 100,
+            "details" => $product->description,
+            "cart_id" => $cart->id,
+            "custom_attributes" => json_encode([
+                "custom" => "value"
+            ])
+        ]);
+    }
+
     private function newCart()
     {
         return Cart::create();
+    }
+
+    /**
+     * @return stdClass
+     */
+    private function createMappedDomainObject($id = null)
+    {
+        $this->app['config']->set('merx.item_mapper', ProductToCartItemMapper::class);
+
+        $id = $id ?: rand(1, 1000000);
+
+        if (!TestArticle::find($id)) {
+            TestArticle::create(["id" => $id]);
+        }
+
+        $product = new stdClass();
+        $product->id = $id;
+        $product->label = "T-shirt";
+        $product->price = 22.50;
+        $product->description = "A nice blue t-shirt";
+
+        return $product;
     }
 }
 
@@ -340,12 +466,18 @@ class ProductToCartItemMapper implements CartItemMapper
      */
     public function mapCartItemAttributes($object)
     {
-        return [
+        $tab = [
             "name" => $object->label,
             "price" => $object->price * 100,
             "details" => $object->description,
-            "id" => $object->id,
-            "type" => TestArticle::class
+            "article_id" => $object->id,
+            "article_type" => TestArticle::class,
         ];
+
+        if (isset($object->attributes)) {
+            $tab["attributes"] = $object->attributes;
+        }
+
+        return $tab;
     }
 }

@@ -33,27 +33,3 @@ function merx_current_client_id()
 
     return null;
 }
-
-/**
- * @param $object
- * @return \Dvlpp\Merx\Models\CartItem
- * @throws MapperException
- */
-function merx_item_map($object)
-{
-    $mapperClass = config("merx.item_mapper");
-
-    if (!$mapperClass) {
-        throw new MapperException("The merx.item_mapper config was not found.");
-    }
-
-    $mapper = new $mapperClass;
-
-    $attributes = $mapper->mapCartItemAttributes($object);
-    // TODO add some attribute presence validation
-    $attributes["article_id"] = $attributes["id"];
-    $attributes["article_type"] = $attributes["type"];
-    unset($attributes["id"], $attributes["type"]);
-
-    return new CartItem($attributes);
-}

@@ -2,6 +2,8 @@
 
 namespace Dvlpp\Merx\Models;
 
+use Illuminate\Support\Collection;
+
 trait WithCustomAttributes
 {
 
@@ -9,11 +11,19 @@ trait WithCustomAttributes
      * @param string $name
      * @return string|null
      */
-    public function customAttribute($name, $value = null)
+    public function customAttribute($name)
     {
         return isset($this->custom_attributes[$name])
             ? $this->custom_attributes[$name]
             : null;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function allCustomAttributes()
+    {
+        return collect($this->custom_attributes);
     }
 
     /**
