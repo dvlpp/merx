@@ -13,7 +13,7 @@ trait WithCustomAttributes
      */
     public function customAttribute($name)
     {
-        return isset($this->custom_attributes[$name])
+        return $this->hasCustomAttribute($name)
             ? $this->custom_attributes[$name]
             : null;
     }
