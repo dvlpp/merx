@@ -19,6 +19,16 @@ trait WithCustomAttributes
     }
 
     /**
+     * 
+     * @param  $name 
+     * @return boolean 
+     */
+    public function hasCustomAttribute($name)
+    {   
+        return isset($this->custom_attributes[$name]);
+    }
+
+    /**
      * @return Collection
      */
     public function allCustomAttributes()
