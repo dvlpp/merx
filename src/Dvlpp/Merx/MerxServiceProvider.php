@@ -2,6 +2,7 @@
 
 namespace Dvlpp\Merx;
 
+use Dvlpp\Merx\Models\Cart;
 use Dvlpp\Merx\Console\MigrateDb;
 use Illuminate\Support\ServiceProvider;
 
