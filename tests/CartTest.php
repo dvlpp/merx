@@ -455,6 +455,20 @@ class CartTest extends TestCase
         );
     }
 
+    /** @test */
+    public function cart_items_collection_is_updated_after_cartitem_quantity_update()
+    {
+        $cart = $this->newCart();
+
+        $item = $cart->addItem($this->itemAttributes(), 1);
+
+        $this->assertEquals(1, $cart->itemsCount());
+
+        $cart->updateItemQuantity($item->id, 2);
+
+        $this->assertEquals(2, $cart->itemsCount());
+    }
+
     private function newCart()
     {
         return Cart::create();

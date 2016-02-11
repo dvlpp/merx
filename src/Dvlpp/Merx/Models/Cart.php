@@ -140,6 +140,13 @@ class Cart extends Model
             "quantity" => $quantity
         ]);
 
+        // If the relationship was already loaded, we have
+        // to explicitly update the item quantity
+        if ($this->relationLoaded('items')) {
+            $this->items->where("id", $updatableItem->id)
+                ->first()->quantity = $quantity;
+        }
+
         return $this;
     }
 
