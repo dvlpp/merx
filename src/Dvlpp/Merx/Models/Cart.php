@@ -17,7 +17,7 @@ class Cart extends Model
      */
     public function items()
     {
-        return $this->hasMany(CartItem::class, "cart_id");
+        return $this->hasMany($this->cartItemClass(), "cart_id");
     }
 
     /**
@@ -191,7 +191,8 @@ class Cart extends Model
         $mapper = $this->newCartItemDomainMapperInstance();
         $attributes = $mapper->mapCartItemAttributes($object);
 
-        $cartItem = CartItem::newItemWith($attributes);
+        $itemClass = $this->cartItemClass();
+        $cartItem = $itemClass::newItemWith($attributes);
 
         return $cartItem;
     }
@@ -209,7 +210,8 @@ class Cart extends Model
     {
         if (is_array($item)) {
             // Attributes array case
-            $item = CartItem::newItemWith($item);
+            $itemClass = $this->cartItemClass();
+            $item = $itemClass::newItemWith($item);
 
         } elseif (is_object($item)) {
             // Mapping case: we try to insert a "domain" object
@@ -275,5 +277,13 @@ class Cart extends Model
         }
 
         return new $mapperClass;
+    }
+
+    /**
+     * @return mixed
+     */
+    private function cartItemClass()
+    {
+        return config('merx.cart_item_class', CartItem::class);
     }
 }

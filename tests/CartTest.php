@@ -430,6 +430,31 @@ class CartTest extends TestCase
         ]);
     }
 
+    /** @test */
+    public function we_can_use_a_custom_cartitem_class()
+    {
+        $this->app['config']->set('merx.cart_item_class', CustomItem::class);
+
+        $itemAttributes = $this->itemAttributes();
+        $cart = $this->newCart();
+
+        // We explicitly load the relation to ensure it is updated
+        $this->assertCount(0, $cart->items);
+
+        $item = $cart->addItem($itemAttributes);
+
+        $this->assertTrue($item instanceof CustomItem);
+
+        $this->assertCount(1, $cart->items);
+
+        $this->seeInDatabase('merx_cart_items',
+            array_merge(
+                ["id" => $item->id],
+                $itemAttributes
+            )
+        );
+    }
+
     private function newCart()
     {
         return Cart::create();
@@ -481,3 +506,5 @@ class ProductToCartItemMapper implements CartItemMapper
         return $tab;
     }
 }
+
+class CustomItem extends CartItem {}

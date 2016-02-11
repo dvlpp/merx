@@ -22,5 +22,9 @@ return [
     // increment, date-and-increment, date-and-day-increment. To implement
     // a custom generator, type here the full path of a class which implements
     // Dvlpp\Merx\Utils\OrderRefGenerator\OrderRefGenerator interface
-    "order_ref_generator" => "date-and-day-increment"
+    "order_ref_generator" => "date-and-day-increment",
+
+    // The class to use as CartItem in merx
+    "cart_item_class" => \Dvlpp\Merx\Models\CartItem::class,
+
 ];
