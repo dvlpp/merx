@@ -97,3 +97,4 @@ class MerxTest extends TestCase
     }
 
 }
+
