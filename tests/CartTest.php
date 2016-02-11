@@ -329,6 +329,26 @@ class CartTest extends TestCase
     }
 
     /** @test */
+    public function when_adding_1_mapped_object_with_same_article_one_custom_attributes_and_one_with_none_we_dont_add_up_quantities(
+    )
+    {
+        $cart = $this->newCart();
+
+        $product = $this->createMappedDomainObject(1);
+         $product->attributes = [
+            "custom_out_of_id" => "value"
+        ];
+
+        $product2 = $this->createMappedDomainObject(1);
+        
+        $cart->addItem($product, 1);
+        $cart->addItem($product2, 1);
+
+        $this->assertEquals(2, $cart->itemsCount());
+        $this->assertCount(2, $cart->items);
+    }
+
+    /** @test */
     public function we_cant_add_an_invalid_item()
     {
         $cart = $this->newCart();
