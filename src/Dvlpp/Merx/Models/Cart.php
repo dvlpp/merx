@@ -90,6 +90,9 @@ class Cart extends Model
             if ($cartItem->article_id != $removableItem->article_id) {
                 continue;
             }
+            if (! $this->itemIsConsideredEqual($cartItem, $removableItem)) {
+                continue;
+            }
 
             $cartItem->delete();
             $this->items->forget($key);
@@ -242,21 +245,26 @@ class Cart extends Model
             ->where("article_type", $item->article_type)
             ->get();
 
-        // Check if there's some custom attributes to ignore in
-        // the item comparison
-        $domainClass = $item->article_type;
-        $attrToExcept = isset($domainClass::$merxCartItemAttributesExceptions)
-            ? $domainClass::$merxCartItemAttributesExceptions
-            : [];
-
         foreach ($items as $sameItem) {
             // Array comparison on all attributes
-            if ($item->allCustomAttributes()->except($attrToExcept)->toArray() == $sameItem->allCustomAttributes()->except($attrToExcept)->toArray()) {
+            if ($this->itemIsConsideredEqual($item, $sameItem)) {
                 return $sameItem;
             }
         }
 
         return null;
+    }
+
+    private function itemIsConsideredEqual($itemA, $itemB)
+    {
+        // Check if there's some custom attributes to ignore in
+        // the item comparison
+        $domainClass = $itemA->article_type;
+        $attrToExcept = isset($domainClass::$merxCartItemAttributesExceptions)
+            ? $domainClass::$merxCartItemAttributesExceptions
+            : [];
+
+        return ($itemA->allCustomAttributes()->except($attrToExcept)->toArray() == $itemB->allCustomAttributes()->except($attrToExcept)->toArray());
     }
 
     /**
