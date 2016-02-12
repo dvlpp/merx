@@ -354,6 +354,27 @@ class CartTest extends TestCase
     }
 
     /** @test */
+    public function removing_article_with_same_item_id_and_no_attributes_should_not_remove_the_one_with_attributes()
+    {
+        $cart = $this->newCart();
+        $product1 = $this->createMappedDomainObject(1);
+        $product1->attributes = [
+            "custom_attr" => "value"
+        ];
+        $product2 = $this->createMappedDomainObject(1);
+
+        $item1 = $cart->addItem($product1, 1);
+        $item2 = $cart->addItem($product2, 1);
+        
+        $this->assertCount(2,$cart->items);
+
+        // Then we remove the Product without attributes ($item2)
+        $cart->removeItem($item2->id);
+        
+        $this->assertTrue($cart->findItem($item1->id) instanceof CartItem);
+    }
+
+    /** @test */
     public function we_cant_add_an_invalid_item()
     {
         $cart = $this->newCart();
