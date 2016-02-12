@@ -250,22 +250,10 @@ class Cart extends Model
             : [];
 
         foreach ($items as $sameItem) {
-
-            if (!sizeof($item->allCustomAttributes()->except($attrToExcept))
-                && !sizeof($sameItem->allCustomAttributes()->except($attrToExcept))
-            ) {
-                // Both without attributes: same item
+            // Array comparison on all attributes
+            if ($item->allCustomAttributes()->except($attrToExcept)->toArray() == $sameItem->allCustomAttributes()->except($attrToExcept)->toArray()) {
                 return $sameItem;
             }
-
-            foreach ($item->allCustomAttributes()->except($attrToExcept) as $attribute => $value) {
-                if ($sameItem->customAttribute($attribute) != $value) {
-                    continue 2;
-                }
-            }
-
-            // All attributes identical: same item
-            return $sameItem;
         }
 
         return null;

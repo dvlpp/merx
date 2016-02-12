@@ -248,11 +248,17 @@ class CartTest extends TestCase
 
         $itemAttributes = $this->itemAttributes();
         $itemAttributes["quantity"] = 1;
-        $itemAttributes["attributes"] = [
-            "custom" => "value"
-        ];
 
+        $itemAttributes["attributes"] = [
+            "custom" => "value",
+            "custom2" => "value2",
+        ];
         $cart->addItem($itemAttributes);
+
+        $itemAttributes["attributes"] = [
+            "custom2" => "value2",
+            "custom" => "value",
+        ];
         $cart->addItem($itemAttributes);
 
         $this->assertEquals(2, $cart->itemsCount());
@@ -293,7 +299,8 @@ class CartTest extends TestCase
 
         $product2 = $this->createMappedDomainObject(1);
         $product2->attributes = [
-            "custom" => "value2"
+            "custom" => "value",
+            "custom2" => "value2"
         ];
 
         $cart->addItem($product, 1);
@@ -326,6 +333,24 @@ class CartTest extends TestCase
 
         $this->assertEquals(2, $cart->itemsCount());
         $this->assertCount(1, $cart->items);
+    }
+
+    /** @test */
+    public function when_adding_1_mapped_object_with_same_article_one_custom_attributes_and_one_with_none_we_dont_add_up_quantities(
+    )
+    {
+        $cart = $this->newCart();
+        $product = $this->createMappedDomainObject(1);
+        $product->attributes = [
+            "custom" => "value"
+        ];
+        $product2 = $this->createMappedDomainObject(1);
+
+        $cart->addItem($product, 1);
+        $cart->addItem($product2, 1);
+
+        $this->assertEquals(2, $cart->itemsCount());
+        $this->assertCount(2, $cart->items);
     }
 
     /** @test */
