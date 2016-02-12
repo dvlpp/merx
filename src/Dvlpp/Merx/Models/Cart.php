@@ -87,15 +87,13 @@ class Cart extends Model
         $removableItem = $this->findItem($itemId);
 
         foreach ($this->items as $key => $cartItem) {
-            if ($cartItem->article_id != $removableItem->article_id) {
-                continue;
-            }
-            if (! $this->itemIsConsideredEqual($cartItem, $removableItem)) {
+            if (!$this->isSameItem($cartItem, $removableItem)) {
                 continue;
             }
 
             $cartItem->delete();
             $this->items->forget($key);
+
             break;
         }
 
@@ -246,8 +244,7 @@ class Cart extends Model
             ->get();
 
         foreach ($items as $sameItem) {
-            // Array comparison on all attributes
-            if ($this->itemIsConsideredEqual($item, $sameItem)) {
+            if ($this->isSameItem($item, $sameItem)) {
                 return $sameItem;
             }
         }
@@ -255,8 +252,12 @@ class Cart extends Model
         return null;
     }
 
-    private function itemIsConsideredEqual($itemA, $itemB)
+    private function isSameItem($itemA, $itemB)
     {
+        if ($itemA->article_id != $itemB->article_id) {
+            return false;
+        }
+
         // Check if there's some custom attributes to ignore in
         // the item comparison
         $domainClass = $itemA->article_type;
