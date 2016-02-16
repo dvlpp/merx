@@ -25,7 +25,7 @@ function merx_current_cart()
  */
 function merx_current_client_id()
 {
-    $user = auth()->user();
+    $user = app('auth')->user();
 
     if ($user && (!method_exists($user, "isMerxUser") || $user->isMerxUser())) {
         return $user->id;
