@@ -24,9 +24,11 @@ class MerxServiceProvider extends ServiceProvider
         ], 'migrations');
 
         // Publish config
-        $this->publishes([
-            __DIR__ . '/../../../config/merx.php' => config_path('merx.php')
-        ], 'config');
+        if(class_exists('Illuminate\Foundation\Application', false)) {
+            $this->publishes([
+                __DIR__ . '/../../../config/merx.php' => config_path('merx.php')
+            ], 'config');
+        }
     }
 
     /**

@@ -44,6 +44,30 @@ class MigrateDb extends Command
         $this->classFinder = $classFinder;
     }
 
+    protected function setForeignKeyChecks()
+    {
+        switch(\DB::getDriverName()) {
+            case 'mysql':
+                \DB::statement('SET FOREIGN_KEY_CHECKS=0');
+                break;
+            case 'sqlite':
+                \DB::statement('PRAGMA foreign_keys = OFF');
+                break;
+        }
+    }
+
+    protected function unsetForeignKeyChecks()
+    {
+        switch(\DB::getDriverName()) {
+            case 'mysql':
+                \DB::statement('SET FOREIGN_KEY_CHECKS=1');
+                break;
+            case 'sqlite':
+                \DB::statement('PRAGMA foreign_keys = ON');
+                break;
+        }
+    }
+
     /**
      * Execute the console command.
      *
@@ -51,7 +75,7 @@ class MigrateDb extends Command
      */
     public function handle()
     {
-        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        $this->setForeignKeyChecks();
 
         foreach ($this->filesystem->files(__DIR__ . "/../../../../database/migrations") as $file) {
             $this->filesystem->requireOnce($file);
@@ -64,6 +88,6 @@ class MigrateDb extends Command
 
         $this->info("Merx tables migrated.");
 
-        \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        $this->unsetForeignKeyChecks();
     }
 }
