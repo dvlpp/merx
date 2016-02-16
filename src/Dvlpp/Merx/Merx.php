@@ -10,6 +10,7 @@ use Dvlpp\Merx\Exceptions\CartClosedException;
 use Dvlpp\Merx\Exceptions\NoCurrentCartException;
 use Dvlpp\Merx\Exceptions\NoCurrentClientException;
 use Dvlpp\Merx\Exceptions\OrderWithThisRefAlreadyExist;
+use Illuminate\Http\Request;
 
 class Merx
 {
@@ -19,25 +20,39 @@ class Merx
     private $cart;
 
     /**
+     * @var \Illuminate\Http\Request
+     */
+    private $request
+
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
+
+    /**
      * Returns the current session's Cart, or create a new one.
      *
+     * @param  integer $cartId
+     * 
      * @return Cart
      */
-    public function cart()
+    public function cart($cartId = null)
     {
         if (!$this->cart) {
-            $this->cart = $this->getCartOrCreateNew();
+            $this->cart = $this->getCartOrCreateNew($cartId);
         }
 
         return $this->cart;
     }
 
     /**
+     * @param integer $cartId
+     * 
      * @return Order
      */
-    public function order()
+    public function order($cartId = null)
     {
-        return $this->cart()->order;
+        return $this->cart($cartId)->order;
     }
 
     /**
@@ -84,21 +99,41 @@ class Merx
 
         $order->complete();
 
-        session()->forget("merx_cart_id");
+        if(config("merx.uses_session", true)) {
+            $this->request->session()->forget("merx_cart_id");
+        }
 
         return $order;
     }
 
     /**
+     * Get an existing Cart
+     * 
      * @return Cart
      */
-    private function getCartOrCreateNew()
+    private function getExistingCart($cartId)
     {
+        return Cart::whereId($cartId)->first();
+    }
+
+    /**
+     * @return Cart
+     */
+    private function getCartOrCreateNew($cartId = null)
+    {
+        if($cartId)
+        {
+            $cart = $this->getExistingCart($cartId);
+        }
+
         $cart = merx_current_cart();
 
         if (!$cart) {
             $cart = Cart::create();
-            session()->put("merx_cart_id", $cart->id);
+
+            if(config("merx.uses_session", true)) {
+                $this->request->session()->put("merx_cart_id", $cart->id);
+            }
         }
 
         return $cart;
