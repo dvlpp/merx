@@ -3,7 +3,6 @@
 namespace Dvlpp\Merx\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Collection;
 use Dvlpp\Merx\Exceptions\MapperException;
 use Dvlpp\Merx\Exceptions\CartClosedException;
 use Dvlpp\Merx\Exceptions\InvalidCartItemException;
@@ -169,7 +168,7 @@ class Cart extends Model
     {
         $this->items()->delete();
 
-        $this->items = new Collection;
+        $this->load('items');
 
         return $this;
     }
