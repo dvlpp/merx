@@ -20,16 +20,6 @@ class Merx
     private $cart;
 
     /**
-     * @var \Illuminate\Http\Request
-     */
-    private $request
-
-    public function __construct(Request $request)
-    {
-        $this->request = $request;
-    }
-
-    /**
      * Returns the current session's Cart, or create a new one.
      *
      * @param  integer $cartId
@@ -100,7 +90,7 @@ class Merx
         $order->complete();
 
         if(config("merx.uses_session", true)) {
-            $this->request->session()->forget("merx_cart_id");
+            session()->forget("merx_cart_id");
         }
 
         return $order;
@@ -132,7 +122,7 @@ class Merx
             $cart = Cart::create();
 
             if(config("merx.uses_session", true)) {
-                $this->request->session()->put("merx_cart_id", $cart->id);
+                session()->put("merx_cart_id", $cart->id);
             }
         }
 

@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0a517f75dd49f74b1959f3f525bd2f39",
-    "content-hash": "9d3cf125c01b1ed462f7f36d12cdcb70",
+    "hash": "7fa431ef9d4b6b9496b370a1d692f044",
+    "content-hash": "ded643362b2932b9d8506373ec1d7025",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -1928,6 +1928,51 @@
                 "test"
             ],
             "time": "2015-05-11 14:41:42"
+        },
+        {
+            "name": "laravel/laravel",
+            "version": "v5.2.15",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/laravel.git",
+                "reference": "c751b33d01c02aa332745c24f685282520fb16c7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel/laravel/zipball/c751b33d01c02aa332745c24f685282520fb16c7",
+                "reference": "c751b33d01c02aa332745c24f685282520fb16c7",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "5.2.*",
+                "php": ">=5.5.9"
+            },
+            "require-dev": {
+                "fzaninotto/faker": "~1.4",
+                "mockery/mockery": "0.9.*",
+                "phpunit/phpunit": "~4.0",
+                "symfony/css-selector": "2.8.*|3.0.*",
+                "symfony/dom-crawler": "2.8.*|3.0.*"
+            },
+            "type": "project",
+            "autoload": {
+                "classmap": [
+                    "database"
+                ],
+                "psr-4": {
+                    "App\\": "app/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "The Laravel Framework.",
+            "keywords": [
+                "framework",
+                "laravel"
+            ],
+            "time": "2016-02-12 15:05:19"
         },
         {
             "name": "mockery/mockery",
