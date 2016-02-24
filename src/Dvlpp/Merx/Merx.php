@@ -10,7 +10,6 @@ use Dvlpp\Merx\Exceptions\CartClosedException;
 use Dvlpp\Merx\Exceptions\NoCurrentCartException;
 use Dvlpp\Merx\Exceptions\NoCurrentClientException;
 use Dvlpp\Merx\Exceptions\OrderWithThisRefAlreadyExist;
-use Illuminate\Http\Request;
 
 class Merx
 {
@@ -127,5 +126,4 @@ class Merx
 
         return $cart;
     }
-
 }
