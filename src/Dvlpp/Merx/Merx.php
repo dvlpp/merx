@@ -21,17 +21,30 @@ class Merx
     /**
      * Returns the current session's Cart, or create a new one.
      *
-     * @param  integer $cartId
-     * 
+     * @param integer|null $cartId
+     * @param bool $createIfNeeded
      * @return Cart
      */
-    public function cart($cartId = null)
+    public function cart($cartId = null, $createIfNeeded = true)
     {
         if (!$this->cart) {
-            $this->cart = $this->getCartOrCreateNew($cartId);
+            $this->cart = $this->existingCart($cartId);
+
+            if (!$this->cart && $createIfNeeded) {
+                $this->cart = $this->newCart();
+            }
         }
 
         return $this->cart;
+    }
+
+    public function hasCart()
+    {
+        if ($this->cart) {
+            return true;
+        }
+
+        return $this->existingCart() != null;
     }
 
     /**
@@ -96,32 +109,25 @@ class Merx
     }
 
     /**
-     * Get an existing Cart
-     * 
-     * @return Cart
+     * @param integer|null $cartId
+     * @return Cart|null
      */
-    private function getExistingCart($cartId)
+    private function existingCart($cartId = null)
     {
-        return Cart::whereId($cartId)->first();
+        return $cartId
+            ? Cart::whereId($cartId)->first()
+            : merx_current_cart();
     }
 
     /**
      * @return Cart
      */
-    private function getCartOrCreateNew($cartId = null)
+    private function newCart()
     {
-        if ($cartId) {
-            return $this->getExistingCart($cartId);
-        }
+        $cart = Cart::create();
 
-        $cart = merx_current_cart();
-
-        if (!$cart) {
-            $cart = Cart::create();
-
-            if(config("merx.uses_session", true)) {
-                session()->put("merx_cart_id", $cart->id);
-            }
+        if (config("merx.uses_session", true)) {
+            session()->put("merx_cart_id", $cart->id);
         }
 
         return $cart;

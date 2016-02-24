@@ -32,6 +32,28 @@ class MerxTest extends TestCase
     }
 
     /** @test */
+    public function no_cart_is_returned_id_create_param_is_false()
+    {
+        $merx = new Merx();
+
+        $cart = $merx->cart(null, false);
+
+        $this->assertNull($cart);
+    }
+
+    /** @test */
+    public function has_cart_works()
+    {
+        $merx = new Merx();
+
+        $this->assertFalse($merx->hasCart());
+
+        $merx->cart();
+
+        $this->assertTrue($merx->hasCart());
+    }
+
+    /** @test */
     public function we_can_create_a_new_order()
     {
         $merx = new Merx();
