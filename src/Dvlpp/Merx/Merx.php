@@ -111,9 +111,8 @@ class Merx
      */
     private function getCartOrCreateNew($cartId = null)
     {
-        if($cartId)
-        {
-            $cart = $this->getExistingCart($cartId);
+        if ($cartId) {
+            return $this->getExistingCart($cartId);
         }
 
         $cart = merx_current_cart();
