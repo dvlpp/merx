@@ -19,8 +19,7 @@ trait WithCustomAttributes
     }
 
     /**
-     * 
-     * @param  $name 
+     * @param  $name
      * @return boolean 
      */
     public function hasCustomAttribute($name)
@@ -52,6 +51,9 @@ trait WithCustomAttributes
         }
     }
 
+    /**
+     * @param array $attributes
+     */
     public function setMultipleCustomAttribute(array $attributes)
     {
         foreach ($attributes as $attribute => $value) {
@@ -59,5 +61,20 @@ trait WithCustomAttributes
         }
 
         $this->save();
+    }
+
+    /**
+     * @param $name
+     * @param bool $save
+     */
+    public function removeCustomAttribute($name, $save = true)
+    {
+        $attrs = $this->custom_attributes;
+        unset($attrs[$name]);
+        $this->custom_attributes = $attrs;
+
+        if ($save) {
+            $this->save();
+        }
     }
 }
