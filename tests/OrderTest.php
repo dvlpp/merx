@@ -267,6 +267,32 @@ class OrderTest extends TestCase
         ]);
     }
 
+    /** @test */
+    public function we_can_remove_multiple_custom_attributes_at_once_from_an_order()
+    {
+        $this->createCartAndClient();
+
+        $order = Order::create([
+            "ref" => "123"
+        ]);
+
+        $order->setCustomAttribute("custom", "value");
+        $order->setCustomAttribute("custom2", "value");
+
+        $this->assertEquals("value", $order->customAttribute("custom"));
+        $this->assertEquals("value", $order->customAttribute("custom2"));
+
+        $order->removeMultipleCustomAttributes(["custom", "custom2"]);
+
+        $this->assertEquals(null, $order->customAttribute("custom"));
+        $this->assertEquals(null, $order->customAttribute("custom2"));
+
+        $this->seeInDatabase('merx_orders', [
+            "id" => $order->id,
+            "custom_attributes" => json_encode([])
+        ]);
+    }
+
     protected function createCartAndClient()
     {
         $cart = Cart::create();

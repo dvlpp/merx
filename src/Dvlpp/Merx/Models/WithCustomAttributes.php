@@ -77,4 +77,16 @@ trait WithCustomAttributes
             $this->save();
         }
     }
+
+    /**
+     * @param array $attributes
+     */
+    public function removeMultipleCustomAttributes(array $attributes)
+    {
+        foreach ($attributes as $attribute) {
+            $this->removeCustomAttribute($attribute, false);
+        }
+
+        $this->save();
+    }
 }
