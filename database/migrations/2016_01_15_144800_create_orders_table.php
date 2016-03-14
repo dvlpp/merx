@@ -32,7 +32,7 @@ class CreateOrdersTable extends Migration
                     ->onDelete('cascade');
             }
 
-            $table->timestamps();
+            $table->nullableTimestamps();
         });
     }
 

@@ -31,7 +31,7 @@ class CreateCartItemsTable extends Migration
                 ->on('merx_carts')
                 ->onDelete('cascade');
 
-            $table->timestamps();
+            $table->nullableTimestamps();
         });
     }
 
