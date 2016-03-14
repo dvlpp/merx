@@ -54,7 +54,7 @@ trait WithCustomAttributes
     /**
      * @param array $attributes
      */
-    public function setMultipleCustomAttribute(array $attributes)
+    public function setMultipleCustomAttributes(array $attributes)
     {
         foreach ($attributes as $attribute => $value) {
             $this->setCustomAttribute($attribute, $value, false);

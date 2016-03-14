@@ -227,7 +227,7 @@ class OrderTest extends TestCase
             "ref" => "123"
         ]);
 
-        $order->setMultipleCustomAttribute([
+        $order->setMultipleCustomAttributes([
             "custom" => "value",
             "custom2" => "value2",
         ]);
