@@ -3,6 +3,7 @@
 namespace Dvlpp\Merx\Console;
 
 use Illuminate\Console\Command;
+use Illuminate\Database\QueryException;
 use Illuminate\Filesystem\ClassFinder;
 use Illuminate\Filesystem\Filesystem;
 
@@ -13,14 +14,14 @@ class MigrateDb extends Command
      *
      * @var string
      */
-    protected $signature = 'merx:migrate';
+    protected $signature = 'merx:migrate {--refresh : if present existing tables will be deleted first}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Migrate Merx DB table. Warning: existing Merx data will be lost.';
+    protected $description = 'Migrate Merx DB table if needed.';
 
     /**
      * @var Filesystem
@@ -40,11 +41,12 @@ class MigrateDb extends Command
     public function __construct(Filesystem $filesystem, ClassFinder $classFinder)
     {
         parent::__construct();
+
         $this->filesystem = $filesystem;
         $this->classFinder = $classFinder;
     }
 
-    protected function setForeignKeyChecks()
+    protected function disableForeignKeyChecks()
     {
         switch(\DB::getDriverName()) {
             case 'mysql':
@@ -56,7 +58,7 @@ class MigrateDb extends Command
         }
     }
 
-    protected function unsetForeignKeyChecks()
+    protected function enableForeignKeyChecks()
     {
         switch(\DB::getDriverName()) {
             case 'mysql':
@@ -75,19 +77,38 @@ class MigrateDb extends Command
      */
     public function handle()
     {
-        $this->setForeignKeyChecks();
+        $this->disableForeignKeyChecks();
+
+        $migrationCount = 0;
 
         foreach ($this->filesystem->files(__DIR__ . "/../../../../database/migrations") as $file) {
             $this->filesystem->requireOnce($file);
             $migrationClass = $this->classFinder->findClass($file);
 
             $migration = new $migrationClass;
-            $migration->down();
-            $migration->up();
+
+            if ($this->option("refresh")) {
+                $migration->down();
+            }
+
+            try {
+                $migration->up();
+                $migrationCount++;
+
+            } catch (QueryException $ex) {
+                if (!$this->isTableAlreadyExistError($ex)) {
+                    throw $ex;
+                }
+            }
         }
 
-        $this->info("Merx tables migrated.");
+        $this->enableForeignKeyChecks();
 
-        $this->unsetForeignKeyChecks();
+        $this->info("$migrationCount table(s) migrated.");
+    }
+
+    private function isTableAlreadyExistError(\Exception $ex)
+    {
+        return $ex->getCode() == "42S01";
     }
 }

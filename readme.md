@@ -79,6 +79,11 @@ Run <code>php artisan migrate</code> to add the 3 Merx tables:
 - merx_cart_items
 - merx_orders
 
+Alternatively, you can run the <code>php artisan merx:migrate</code>
+to migrate the db without adding the migration classes, as part of your
+deployment process. This command **will not** erase existing tables,
+except with the <code>--refresh</code> option.
+
 ### Adapt your User class (optional)
 
 Finally, Merx use the Laravel auth system, with the standard User class.
