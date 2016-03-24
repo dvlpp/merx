@@ -23,9 +23,6 @@
     "symfony/dom-crawler": "2.8.*|3.0.*"
   },
   "autoload": {
-    "classmap": [
-      "database"
-    ],
     "psr-4": {
       "Dvlpp\\Merx\\": "src/Dvlpp/Merx/"
     },
