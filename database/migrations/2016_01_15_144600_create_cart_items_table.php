@@ -25,13 +25,14 @@ class CreateCartItemsTable extends Migration
             $table->string("article_id");
             $table->string("article_type");
             $table->index(["article_id", "article_type"]);
+            $table->nullableTimestamps();
+        });
 
+        Schema::table('merx_cart_items', function (Blueprint $table) {
             $table->foreign('cart_id')
                 ->references('id')
                 ->on('merx_carts')
                 ->onDelete('cascade');
-
-            $table->nullableTimestamps();
         });
     }
 

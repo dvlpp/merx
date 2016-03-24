@@ -19,7 +19,10 @@ class CreateOrdersTable extends Migration
             $table->string("ref")->index();
             $table->string("state");
             $table->text("custom_attributes")->nullable();
+            $table->nullableTimestamps();
+        });
 
+        Schema::table('merx_orders', function (Blueprint $table) {
             $table->foreign('cart_id')
                 ->references('id')
                 ->on('merx_carts')
@@ -31,8 +34,6 @@ class CreateOrdersTable extends Migration
                     ->on(config("merx.users.table"))
                     ->onDelete('cascade');
             }
-
-            $table->nullableTimestamps();
         });
     }
 
