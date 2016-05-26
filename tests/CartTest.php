@@ -515,6 +515,16 @@ class CartTest extends TestCase
         $this->assertEquals(2, $cart->itemsCount());
     }
 
+    /** @test */
+    public function removing_an_inexistant_item_wont_crash()
+    {
+        $cart = $this->newCart();
+
+        $cart->addItem($this->itemAttributes(), 1);
+
+        $cart->removeItem(2);
+    }
+
     private function newCart()
     {
         return Cart::create();

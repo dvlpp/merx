@@ -86,6 +86,10 @@ class Cart extends Model
     {
         $removableItem = $this->findItem($itemId);
 
+        if (!$removableItem) {
+            return $this;
+        }
+
         foreach ($this->items as $key => $cartItem) {
             if (!$this->isSameItem($cartItem, $removableItem)) {
                 continue;
