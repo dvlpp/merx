@@ -193,6 +193,26 @@ class Cart extends Model
         return count($this->items) == 0;
     }
 
+    public function createNewOrder($ref = null)
+    {
+        return $this->order()->create([
+            "ref" => $ref
+        ]);
+    }
+
+    public function completeOrder()
+    {
+        $order = $this->order;
+
+        if (!$order) {
+            $order = $this->createNewOrder();
+        }
+
+        $order->complete();
+
+        return $order;
+    }
+
     /**
      * Map a CartItem from a domain object.
      *

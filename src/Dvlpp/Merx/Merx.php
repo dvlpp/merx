@@ -61,24 +61,20 @@ class Merx
      * Store a new order based on the session's cart and client.
      *
      * @param string|null $orderRef
+     * @param null $cartId
      * @return Order
-     *
-     * @throws NoCurrentClientException
-     * @throws CartClosedException
-     * @throws EmptyCartException
      * @throws NoCurrentCartException
-     * @throws OrderWithThisRefAlreadyExist
      */
-    public function newOrderFromCart($orderRef = null)
+    public function newOrderFromCart($orderRef = null, $cartId = null)
     {
-        if (!$this->hasCart()) {
+        $cart = $this->cart($cartId, false);
+
+        if (!$cart) {
             throw new NoCurrentCartException();
         }
 
-        // Create order from session's cart
-        $order = $this->cart()->order()->create([
-            "ref" => $orderRef
-        ]);
+        // Create order from current cart
+        $order = $cart->createNewOrder($orderRef);
 
         // Force cart DB refresh on next call to reflect this association
         $this->cart = null;
@@ -89,21 +85,12 @@ class Merx
     /**
      * Close the order, remove cart from session.
      *
-     * @throws NoCurrentOrderException
-     * @throws CartClosedException
-     * @throws EmptyCartException
-     * @throws NoCurrentCartException
+     * @param null $cartId
      * @return Order
      */
-    public function completeOrder()
+    public function completeOrder($cartId = null)
     {
-        $order = $this->order();
-
-        if (!$order) {
-            throw new NoCurrentOrderException;
-        }
-
-        $order->complete();
+        $order = $this->cart($cartId, false)->completeOrder();
 
         if(config("merx.uses_session", true)) {
             session()->forget("merx_cart_id");
@@ -119,7 +106,7 @@ class Merx
     private function existingCart($cartId = null)
     {
         return $cartId
-            ? Cart::whereId($cartId)->first()
+            ? Cart::find($cartId)
             : merx_current_cart();
     }
 

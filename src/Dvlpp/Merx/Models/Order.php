@@ -18,6 +18,8 @@ class Order extends Model
 
     protected $fillable = [
         "ref",
+        "cart_id",
+        "client_id",
         "state",
         "custom_attributes"
     ];

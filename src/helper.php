@@ -10,14 +10,19 @@ use Dvlpp\Merx\Models\CartItem;
  */
 function merx_current_cart()
 {
+    if (!config("merx.uses_session", true)) {
+        // If Merx can't use the session, there is no way
+        // he could find the current Cart from nowhere
+        return null;
+    }
+
     $cartId = session("merx_cart_id");
 
     if (!$cartId) {
         return null;
     }
 
-    return Cart::where("id", $cartId)
-        ->first();
+    return Cart::find($cartId);
 }
 
 /**

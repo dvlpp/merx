@@ -113,7 +113,7 @@ class MerxTest extends TestCase
 
         $this->loginClient();
 
-        $order = $merx->newOrderFromCart("123");
+        $order = $merx->newOrderFromCart("123", $cart->id);
 
         return $order;
     }

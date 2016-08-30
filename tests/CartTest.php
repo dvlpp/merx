@@ -188,13 +188,13 @@ class CartTest extends TestCase
     public function we_cant_add_an_item_on_a_closed_cart()
     {
         $cart = Cart::create();
-        session()->put("merx_cart_id", $cart->id);
 
         $cart->addItem(new CartItem($this->itemAttributes()));
 
         $client = $this->loginClient();
 
         Order::create([
+            "cart_id" => $cart->id,
             "client_id" => $client->id,
             "ref" => "123"
         ])->update([
