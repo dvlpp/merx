@@ -71,6 +71,10 @@ class Merx
      */
     public function newOrderFromCart($orderRef = null)
     {
+        if (!$this->hasCart()) {
+            throw new NoCurrentCartException();
+        }
+
         // Create order from session's cart
         $order = $this->cart()->order()->create([
             "ref" => $orderRef
