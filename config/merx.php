@@ -28,6 +28,6 @@ return [
     "cart_item_class" => \Dvlpp\Merx\Models\CartItem::class,
 
     // Indicate if we should store the cart in session
-    "use_session" => true,
+    "uses_session" => true,
 
 ];
