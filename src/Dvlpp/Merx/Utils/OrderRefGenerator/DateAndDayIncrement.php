@@ -20,12 +20,13 @@ class DateAndDayIncrement extends Increment
             ->first();
 
         if (!$order) {
-            return "$today-1";
+            return "$today-001";
         }
 
         list($date, $increment) = explode("-", $order->ref);
 
         $increment++;
+        $increment = str_pad($increment, 3, '0', STR_PAD_LEFT);
 
         return "$today-$increment";
     }

@@ -151,12 +151,12 @@ class OrderTest extends TestCase
 
         $this->seeInDatabase('merx_orders', [
             "id" => $order1->id,
-            "ref" => date("Ymd") . "-2"
+            "ref" => date("Ymd") . "-002"
         ]);
 
         $this->seeInDatabase('merx_orders', [
             "id" => $order2->id,
-            "ref" => date("Ymd") . "-3"
+            "ref" => date("Ymd") . "-003"
         ]);
     }
 
@@ -176,12 +176,12 @@ class OrderTest extends TestCase
 
         $this->seeInDatabase('merx_orders', [
             "id" => $order1->id,
-            "ref" => date("Ymd") . "-1"
+            "ref" => date("Ymd") . "-001"
         ]);
 
         $this->seeInDatabase('merx_orders', [
             "id" => $order2->id,
-            "ref" => date("Ymd") . "-2"
+            "ref" => date("Ymd") . "-002"
         ]);
     }
 
