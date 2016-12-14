@@ -144,8 +144,9 @@ class OrderTest extends TestCase
 
         // Simulate a yesterday order
         Order::create([
-            "ref" => date("Ymd", time() - 24 * 60 * 60) . "-1"
+            "ref" => date("Ymd", time() - 24 * 60 * 60) . "-001"
         ]);
+
         $order1 = Order::create();
         $order2 = Order::create();
 
@@ -169,8 +170,9 @@ class OrderTest extends TestCase
 
         // Simulate a yesterday order
         Order::create([
-            "ref" => date("Ymd", time() - 24 * 60 * 60) . "-1"
+            "ref" => date("Ymd", time() - 24 * 60 * 60) . "-001"
         ]);
+
         $order1 = Order::create();
         $order2 = Order::create();
 
@@ -182,6 +184,18 @@ class OrderTest extends TestCase
         $this->seeInDatabase('merx_orders', [
             "id" => $order2->id,
             "ref" => date("Ymd") . "-002"
+        ]);
+
+        // Simulate a badly referenced order
+        Order::create([
+            "ref" => date("Ymd") . "-1"
+        ]);
+
+        $order3 = Order::create();
+
+        $this->seeInDatabase('merx_orders', [
+            "id" => $order3->id,
+            "ref" => date("Ymd") . "-003"
         ]);
     }
 

@@ -15,18 +15,23 @@ class DateAndDayIncrement extends Increment
     function generate()
     {
         $today = date("Ymd");
+
         $order = Order::where("ref", "like", "$today-%")
             ->orderBy("ref", "desc")
             ->first();
 
-        if (!$order) {
+        if (! $order) {
             return "$today-001";
         }
 
         list($date, $increment) = explode("-", $order->ref);
 
-        $increment++;
-        $increment = str_pad($increment, 3, '0', STR_PAD_LEFT);
+        $existing = true;
+        while($existing) {
+            $increment = str_pad(((int)$increment+1), 3, '0', STR_PAD_LEFT);
+            $existing = Order::where("ref", "$today-$increment")
+                ->first();
+        }
 
         return "$today-$increment";
     }
