@@ -2,13 +2,14 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Filesystem\ClassFinder;
-use Illuminate\Filesystem\Filesystem;
 use Faker\Generator as Faker;
 use Illuminate\Support\Facades\Schema;
+use Laravel\BrowserKitTesting\DatabaseMigrations;
 
-abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
+abstract class BrowserKitCase extends \Laravel\BrowserKitTesting\TestCase
 {
+    use DatabaseMigrations;
+
     /**
      * @var Faker
      */
@@ -17,9 +18,6 @@ abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
     public function setUp()
     {
         parent::setUp();
-
-        $this->app['config']->set('database.default', 'sqlite');
-        $this->app['config']->set('database.connections.sqlite.database', ':memory:');
 
         $this->faker = \Faker\Factory::create();
 
@@ -39,6 +37,9 @@ abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
 
         $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
+        $app['config']->set('database.default', 'sqlite');
+        $app['config']->set('database.connections.sqlite.database', ':memory:');
+
         return $app;
     }
 
@@ -56,43 +57,17 @@ abstract class TestCase extends Illuminate\Foundation\Testing\TestCase
 
     protected function migrateDatabase()
     {
-        // First create fake users and articles tables
-        (new CreateTestUsersTable())->up();
+        // Create fake articles table
         (new CreateTestArticlesTable())->up();
-
-        // Then migrate Merx tables
-        $fileSystem = new Filesystem;
-        $classFinder = new ClassFinder;
-
-        foreach ($fileSystem->files(__DIR__ . "/../database/migrations") as $file) {
-            $fileSystem->requireOnce($file);
-            $migrationClass = $classFinder->findClass($file);
-
-            (new $migrationClass)->up();
-        }
     }
 
     protected function loginClient()
     {
-        $user = TestUser::create();
+        $user = factory(\App\User::class)->create();
 
         auth()->login($user);
 
         return $user;
-    }
-}
-
-class TestUser extends \Illuminate\Database\Eloquent\Model implements Illuminate\Contracts\Auth\Authenticatable
-{
-
-    use Illuminate\Auth\Authenticatable;
-
-    protected $table = 'users';
-    protected $fillable = ['id'];
-
-    public function isMerxUser()
-    {
-        return true;
     }
 }
 
@@ -104,22 +79,6 @@ class TestArticle extends \Illuminate\Database\Eloquent\Model
     public static $merxCartItemAttributesExceptions = [
         "custom_out_of_id"
     ];
-}
-
-class CreateTestUsersTable extends Migration
-{
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
-    {
-        Schema::create('users', function (Blueprint $table) {
-            $table->increments('id');
-            $table->timestamps();
-        });
-    }
 }
 
 class CreateTestArticlesTable extends Migration

@@ -4,7 +4,7 @@ use Dvlpp\Merx\Merx;
 use Dvlpp\Merx\Models\Cart;
 use Dvlpp\Merx\Facade\Merx as MerxFacade;
 
-class MerxTest extends TestCase
+class MerxTest extends BrowserKitCase
 {
     /** @test */
     public function a_new_cart_is_created_if_nothing_in_session()

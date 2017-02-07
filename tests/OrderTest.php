@@ -8,7 +8,7 @@ use Dvlpp\Merx\Models\Cart;
 use Dvlpp\Merx\Models\CartItem;
 use Dvlpp\Merx\Models\Order;
 
-class OrderTest extends TestCase
+class OrderTest extends BrowserKitCase
 {
 
     /** @test */

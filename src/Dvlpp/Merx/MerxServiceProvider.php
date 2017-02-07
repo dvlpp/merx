@@ -2,7 +2,6 @@
 
 namespace Dvlpp\Merx;
 
-use Dvlpp\Merx\Models\Cart;
 use Dvlpp\Merx\Console\MigrateDb;
 use Illuminate\Support\ServiceProvider;
 
@@ -18,10 +17,15 @@ class MerxServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        // Publish migrations
-        $this->publishes([
-            __DIR__ . '/../../../database/migrations/' => database_path('migrations')
-        ], 'migrations');
+        if(method_exists($this, 'loadMigrationsFrom')) {
+            $this->loadMigrationsFrom(__DIR__ . '/../../../database/migrations/');
+
+        } else {
+            // Publish migrations old-school way
+            $this->publishes([
+                __DIR__ . '/../../../database/migrations/' => database_path('migrations')
+            ], 'migrations');
+        }
 
         // Publish config
         if(class_exists('Illuminate\Foundation\Application', false)) {
@@ -41,7 +45,9 @@ class MerxServiceProvider extends ServiceProvider
         // Register Facade
         $this->app->bind('merx', Merx::class);
 
-        $this->commands(MigrateDb::class);
+        if(class_exists('Illuminate\Filesystem\ClassFinder')) {
+            $this->commands(MigrateDb::class);
+        }
     }
 
     /**
