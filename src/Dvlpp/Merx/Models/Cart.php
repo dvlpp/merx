@@ -33,18 +33,18 @@ class Cart extends Model
      *
      * @param $item
      * @param int|null $quantity
-     * @return static
+     * @return CartItem|Model
      * @throws CartClosedException
      * @throws InvalidCartItemException
      * @throws MapperException
      */
     public function addItem($item, $quantity = null)
     {
-        if (!$this->isOpened()) {
+        if (! $this->isOpened()) {
             throw new CartClosedException();
         }
 
-        if (!$item instanceof CartItem) {
+        if (! $item instanceof CartItem) {
             $item = $this->buildCartItem($item);
 
             if ($quantity) {

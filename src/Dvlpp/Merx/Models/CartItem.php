@@ -25,6 +25,8 @@ class CartItem extends Model
         'custom_attributes' => 'array',
     ];
 
+    protected $touches = ['cart'];
+
     public static function newItemWith(array $attributes)
     {
         $validator = validator($attributes, [
@@ -57,6 +59,11 @@ class CartItem extends Model
     public function subtotal()
     {
         return $this->price * $this->quantity;
+    }
+
+    public function cart()
+    {
+        return $this->belongsTo(Cart::class);
     }
 
     public function article()
