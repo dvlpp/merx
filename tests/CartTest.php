@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\Carbon;
 use Dvlpp\Merx\Exceptions\CartClosedException;
 use Dvlpp\Merx\Exceptions\CartItemNotFoundException;
 use Dvlpp\Merx\Exceptions\InvalidCartItemException;
@@ -295,8 +296,7 @@ class CartTest extends BrowserKitCase
     }
 
     /** @test */
-    public function when_adding_2_mapped_objects_with_same_article_and_different_custom_attributes_we_dont_add_up_quantities(
-    )
+    public function when_adding_2_mapped_objects_with_same_article_and_different_custom_attributes_we_dont_add_up_quantities()
     {
         $cart = $this->newCart();
 
@@ -319,8 +319,7 @@ class CartTest extends BrowserKitCase
     }
 
     /** @test */
-    public function when_adding_2_mapped_objects_with_same_article_and_different_custom_attributes_with_except_rules_we_dont_add_up_quantities(
-    )
+    public function when_adding_2_mapped_objects_with_same_article_and_different_custom_attributes_with_except_rules_we_dont_add_up_quantities()
     {
         $cart = $this->newCart();
 
@@ -344,8 +343,7 @@ class CartTest extends BrowserKitCase
     }
 
     /** @test */
-    public function when_adding_1_mapped_object_with_same_article_one_custom_attributes_and_one_with_none_we_dont_add_up_quantities(
-    )
+    public function when_adding_1_mapped_object_with_same_article_one_custom_attributes_and_one_with_none_we_dont_add_up_quantities()
     {
         $cart = $this->newCart();
         $product = $this->createMappedDomainObject(1);
@@ -521,6 +519,28 @@ class CartTest extends BrowserKitCase
         $cart->updateItemQuantity($item->id, 2);
 
         $this->assertEquals(2, $cart->itemsCount());
+    }
+
+    /** @test */
+    public function when_updating_or_removing_a_cartitem_cart_updatedat_attribute_is_updated()
+    {
+        $cart = $this->newCart();
+
+        $before = Carbon::yesterday();
+
+        $cart->updated_at = $before->format("Y-m-d H:i:s");
+        $cart->save(['timestamps' => false]);
+
+        $this->assertTrue((new Carbon($cart->updated_at))->isYesterday());
+        $item = $cart->addItem($this->itemAttributes(), 1);
+        $this->assertTrue((new Carbon($cart->fresh()->updated_at))->isToday());
+
+        $cart->updated_at = $before->format("Y-m-d H:i:s");
+        $cart->save(['timestamps' => false]);
+
+        $this->assertTrue((new Carbon($cart->updated_at))->isYesterday());
+        $cart->removeItem($item);
+        $this->assertTrue((new Carbon($cart->fresh()->updated_at))->isToday());
     }
 
     /** @test */
