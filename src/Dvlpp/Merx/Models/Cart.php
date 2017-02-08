@@ -160,6 +160,10 @@ class Cart extends Model
      */
     public function itemsCount()
     {
+        if($this->isEmpty()) {
+            return 0;
+        }
+
         return $this->items->reduce(function ($carry, $item) {
             return $carry + $item->quantity;
         });

@@ -79,6 +79,14 @@ class CartTest extends BrowserKitCase
     }
 
     /** @test */
+    public function item_count_is_0_if_cart_is_empty()
+    {
+        $cart = $this->newCart();
+
+        $this->assertSame(0, $cart->itemsCount());
+    }
+
+    /** @test */
     public function we_can_remove_an_item()
     {
         $item = new CartItem($this->itemAttributes());
