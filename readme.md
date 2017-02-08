@@ -300,7 +300,7 @@ In the highly hypothetical case where you would like to merge
 articles anyway, without considering the attribute difference,
 there is a way: Merx will look for a public static property of your
 domain article class named `$merxCartItemAttributesExceptions`,
-which must return an array wit the names of tehe custom attributes to
+which must return an array with the names of the custom attributes to
 ignore when comparing articles. So with this:
 
     [App\Article.php]

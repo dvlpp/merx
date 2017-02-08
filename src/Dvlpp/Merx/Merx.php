@@ -2,14 +2,9 @@
 
 namespace Dvlpp\Merx;
 
-use Dvlpp\Merx\Exceptions\NoCurrentOrderException;
 use Dvlpp\Merx\Models\Cart;
 use Dvlpp\Merx\Models\Order;
-use Dvlpp\Merx\Exceptions\EmptyCartException;
-use Dvlpp\Merx\Exceptions\CartClosedException;
 use Dvlpp\Merx\Exceptions\NoCurrentCartException;
-use Dvlpp\Merx\Exceptions\NoCurrentClientException;
-use Dvlpp\Merx\Exceptions\OrderWithThisRefAlreadyExist;
 
 class Merx
 {
