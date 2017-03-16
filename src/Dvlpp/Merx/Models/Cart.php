@@ -86,19 +86,11 @@ class Cart extends Model
     {
         $removableItem = $this->findItem($itemId);
 
-        if (!$removableItem) {
-            return $this;
-        }
+        if ($removableItem) {
+            $removableItem->delete();
 
-        foreach ($this->items as $key => $cartItem) {
-            if (!$this->isSameItem($cartItem, $removableItem)) {
-                continue;
-            }
-
-            $cartItem->delete();
-            $this->items->forget($key);
-
-            break;
+            // Force items relation to refresh itself.
+            $this->load('items');
         }
 
         return $this;
@@ -269,7 +261,8 @@ class Cart extends Model
      */
     private function findItemWithSameArticle(CartItem $item)
     {
-        $items = $this->items()->where("article_id", $item->article_id)
+        $items = $this->items()
+            ->where("article_id", $item->article_id)
             ->where("article_type", $item->article_type)
             ->get();
 
@@ -282,6 +275,14 @@ class Cart extends Model
         return null;
     }
 
+    /**
+     * Returns true if both cart items share the same article_id,
+     * and the same custom attributes.
+     *
+     * @param CartItem $itemA
+     * @param CartItem $itemB
+     * @return bool
+     */
     private function isSameItem($itemA, $itemB)
     {
         if ($itemA->article_id != $itemB->article_id) {
