@@ -82,6 +82,14 @@ Merx keeps the current cart in the current session. If you don't want this
 behaviour, you can disable it here, but be aware that `Merx::cart()` won't
 be able to find your cart: you'll have to pass the `cart_id` to this call.
 
+    "uses_authenticated_clients" => true,
+
+By default, Merx will use the current Laravel authenticated user as the client.
+If you want, you can disable this behaviour but you'll have to manually call
+`Merx::setClientId()` before creating the Order. This config is compatible
+with the eloquent user binding, but will need a session in order to work
+(meaning `uses_session` must be set to true).
+
 ### Migrate DB schema
 
 Run `php artisan migrate` to add the 3 Merx tables:
@@ -97,7 +105,8 @@ except with the `--refresh` option.
 
 ### Adapt your User class (optional)
 
-Finally, Merx use the Laravel auth system, with the standard User class.
+Finally, Merx may use the Laravel auth system, with the standard User class
+(this isn't true if you set `uses_authenticated_clients` to false).
 If you need to separate Merx Users from other, you can define a
 `isMerxUser()` function in your User model. If not present,
 Merx will assume it's always true.
@@ -137,7 +146,7 @@ Or, if you wrote and configure some MerxItemMapper class (see config):
 Finally, you can add directly a `CartItem`, which is useful if you decided
 to code your own implementation (see config):
     
-        Merx::cart()->addItem($cartItem, 1);
+    Merx::cart()->addItem($cartItem, 1);
 
 Note that if the article was already in the cart (same article_id), 
 quantity would add up.
@@ -180,11 +189,8 @@ This action will throw an exception if:
 
 - there's no cart
 - the cart is already closed (meaning that this order was completed before)
-- or there's no current authenticated client
-
-On the second case: Merx is assuming that you use the standard Laravel auth system.
-The idea is that if there's no current auth user, you can
-redirect to a login page.
+- or there's no current client (meaning either no authenticated user 
+or no previous call to `Merx::setClientId`, depending on config)
 
 The order unique reference will be generated given your config (see related doc).
 You can also pass a reference at creation time:
