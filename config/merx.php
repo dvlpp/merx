@@ -30,4 +30,10 @@ return [
     // Indicate if we should store the cart in session
     "uses_session" => true,
 
+    // If true, Merx will use the standard Laravel auth to determine
+    // the current client. If false, you'll have to manually call
+    // Merx::setCurrentClient() before creating an order.
+    // This will only work if uses_session is true.
+    "uses_authenticated_clients" => true
+
 ];

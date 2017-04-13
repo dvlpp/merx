@@ -1,5 +1,6 @@
 <?php
 
+use Dvlpp\Merx\Exceptions\MerxException;
 use Dvlpp\Merx\Merx;
 use Dvlpp\Merx\Models\Cart;
 use Dvlpp\Merx\Facade\Merx as MerxFacade;
@@ -90,6 +91,81 @@ class MerxTest extends BrowserKitCase
         ]);
 
         $this->assertNull(session("merx_cart_id"));
+    }
+
+    /** @test */
+    public function we_can_get_the_current_client_with_auth_and_no_client_model()
+    {
+        $merx = new Merx();
+
+        $client = $this->loginClient();
+
+        $this->assertEquals(
+            $client->id, $merx->client()
+        );
+    }
+
+    /** @test */
+    public function we_can_get_the_current_client_with_auth_and_client_model()
+    {
+        $this->app['config']->set('merx.users', [
+            "table" => "users",
+            "eloquent_model" => \App\User::class
+        ]);
+
+        $merx = new Merx();
+
+        $client = $this->loginClient();
+
+        $this->assertEquals(
+            $client->id, $merx->client()->id
+        );
+    }
+
+    /** @test */
+    public function we_can_get_the_current_client_with_no_auth_and_no_client_model()
+    {
+        $this->app['config']->set('merx.uses_authenticated_clients', false);
+
+        $merx = new Merx();
+
+        $client = factory(\App\User::class)->create();
+
+        $merx->setClientId($client->id);
+
+        $this->assertEquals(
+            $client->id, $merx->client()
+        );
+    }
+
+    /** @test */
+    public function we_can_get_the_current_client_with_no_auth_and_client_model()
+    {
+        $this->app['config']->set('merx.uses_authenticated_clients', false);
+
+        $this->app['config']->set('merx.users', [
+            "table" => "users",
+            "eloquent_model" => \App\User::class
+        ]);
+
+        $merx = new Merx();
+
+        $client = factory(\App\User::class)->create();
+
+        $merx->setClientId($client->id);
+
+        $this->assertEquals(
+            $client->id, $merx->client()->id
+        );
+    }
+
+    /** @test */
+    function we_cant_manually_set_client_id_with_wrong_config()
+    {
+        $merx = new Merx();
+
+        $this->setExpectedException(MerxException::class);
+        $merx->setClientId(1);
     }
 
     /** @test */

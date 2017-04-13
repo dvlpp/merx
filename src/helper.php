@@ -30,6 +30,11 @@ function merx_current_cart()
  */
 function merx_current_client_id()
 {
+    if(!config("merx.uses_authenticated_clients", true)) {
+        // Merx is configured to handle clients manually
+        return session("merx_client_id");
+    }
+
     $user = app('auth')->user();
 
     if ($user && (!method_exists($user, "isMerxUser") || $user->isMerxUser())) {

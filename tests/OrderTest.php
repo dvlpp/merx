@@ -7,6 +7,7 @@ use Dvlpp\Merx\Exceptions\OrderWithThisRefAlreadyExist;
 use Dvlpp\Merx\Models\Cart;
 use Dvlpp\Merx\Models\CartItem;
 use Dvlpp\Merx\Models\Order;
+use Dvlpp\Merx\Facade\Merx as MerxFacade;
 
 class OrderTest extends BrowserKitCase
 {
@@ -63,6 +64,29 @@ class OrderTest extends BrowserKitCase
 
         Order::create([
             "ref" => "123"
+        ]);
+    }
+
+    /** @test */
+    public function we_can_make_a_new_order_with_a_manually_set_client()
+    {
+        $this->app['config']->set('merx.uses_authenticated_clients', false);
+        $client = factory(\App\User::class)->create();
+
+        MerxFacade::setClientId($client->id);
+
+        $cart = Cart::create();
+        session()->put("merx_cart_id", $cart->id);
+
+        $order = Order::create([
+            "ref" => "123"
+        ]);
+
+        $this->seeInDatabase('merx_orders', [
+            "id" => $order->id,
+            "ref" => "123",
+            "cart_id" => $cart->id,
+            "client_id" => $client->id
         ]);
     }
 

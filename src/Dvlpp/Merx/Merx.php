@@ -2,9 +2,11 @@
 
 namespace Dvlpp\Merx;
 
+use Dvlpp\Merx\Exceptions\MerxException;
 use Dvlpp\Merx\Models\Cart;
 use Dvlpp\Merx\Models\Order;
 use Dvlpp\Merx\Exceptions\NoCurrentCartException;
+use Illuminate\Database\Eloquent\Model;
 
 class Merx
 {
@@ -33,6 +35,9 @@ class Merx
         return $this->cart;
     }
 
+    /**
+     * @return bool
+     */
     public function hasCart()
     {
         if ($this->cart) {
@@ -43,13 +48,57 @@ class Merx
     }
 
     /**
+     * Return the current Order, or null.
+     *
      * @param integer $cartId
-     * 
      * @return Order
      */
     public function order($cartId = null)
     {
         return $this->cart($cartId)->order;
+    }
+
+    /**
+     * Return the current Client, or null.
+     *
+     * @return Model|int|null
+     */
+    public function client()
+    {
+        $clientId = merx_current_client_id();
+
+        if(!$clientId) {
+            return null;
+        }
+
+        if(config("merx.users.eloquent_model")) {
+            return call_user_func(
+                config("merx.users.eloquent_model") . "::findOrFail",
+                $clientId
+            );
+        }
+
+        return $clientId;
+    }
+
+    /**
+     * Manually sets the client id
+     * (only with uses_session and !uses_authenticated_clients)
+     *
+     * @param int $clientId
+     * @return bool
+     * @throws MerxException
+     */
+    public function setClientId($clientId)
+    {
+        if (config("merx.uses_session", true)
+            && !config("merx.uses_authenticated_clients", true)) {
+            session()->put("merx_client_id", $clientId);
+
+            return true;
+        }
+
+        throw new MerxException("You can't manually set the clientId: uses_session must be true and uses_authenticated_clients must be false");
     }
 
     /**
