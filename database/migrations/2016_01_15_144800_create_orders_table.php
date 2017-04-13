@@ -27,13 +27,6 @@ class CreateOrdersTable extends Migration
                 ->references('id')
                 ->on('merx_carts')
                 ->onDelete('cascade');
-
-            if (config("merx.users.table")) {
-                $table->foreign('client_id')
-                    ->references('id')
-                    ->on(config("merx.users.table"))
-                    ->onDelete('cascade');
-            }
         });
     }
 
