@@ -11,8 +11,8 @@
   "type": "project",
   "require": {
     "php": ">=5.5.9",
-    "illuminate/support": "5.2.*|5.3.*|5.4.*|5.*",
-    "illuminate/database": "5.2.*|5.3.*|5.4.*|5.*"
+    "illuminate/support": "5.2.*|5.3.*|5.4.*|5.5.*",
+    "illuminate/database": "5.2.*|5.3.*|5.4.*|5.5.*"
   },
   "require-dev": {
     "laravel/laravel": "5.5.*",
