@@ -143,9 +143,13 @@ class CartTest extends BrowserKitCase
 
         $cart = $this->newCart();
 
-        $this->setExpectedException(InvalidCartItemException::class);
+        try {
+            $cart->addItem($attributes);
+            $this->assertTrue(false);
 
-        $cart->addItem($attributes);
+        } catch(InvalidCartItemException $ex) {
+            $this->assertTrue(true);
+        }
     }
 
     /** @test */
@@ -212,9 +216,13 @@ class CartTest extends BrowserKitCase
 
         $cart = $cart->fresh();
 
-        $this->setExpectedException(CartClosedException::class);
+        try {
+            $cart->addItem(new CartItem($this->itemAttributes()));
+            $this->assertTrue(false);
 
-        $cart->addItem(new CartItem($this->itemAttributes()));
+        } catch(CartClosedException $ex) {
+            $this->assertTrue(true);
+        }
     }
 
     /** @test */
@@ -385,9 +393,13 @@ class CartTest extends BrowserKitCase
     {
         $cart = $this->newCart();
 
-        $this->setExpectedException(InvalidCartItemException::class);
+        try {
+            $cart->addItem("test");
+            $this->assertTrue(false);
 
-        $cart->addItem("test");
+        } catch(InvalidCartItemException $ex) {
+            $this->assertTrue(true);
+        }
     }
 
     /** @test */
@@ -395,9 +407,13 @@ class CartTest extends BrowserKitCase
     {
         $cart = $this->newCart();
 
-        $this->setExpectedException(CartItemNotFoundException::class);
+        try {
+            $cart->updateItemQuantity("123", 2);
+            $this->assertTrue(false);
 
-        $cart->updateItemQuantity("123", 2);
+        } catch(CartItemNotFoundException $ex) {
+            $this->assertTrue(true);
+        }
     }
 
     /** @test */
@@ -551,6 +567,8 @@ class CartTest extends BrowserKitCase
         $cart->addItem($this->itemAttributes(), 1);
 
         $cart->removeItem(2);
+
+        $this->assertTrue(true);
     }
 
     private function newCart()

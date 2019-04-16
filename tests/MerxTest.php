@@ -164,8 +164,12 @@ class MerxTest extends BrowserKitCase
     {
         $merx = new Merx();
 
-        $this->setExpectedException(MerxException::class);
-        $merx->setClientId(1);
+        try {
+            $merx->setClientId(1);
+            $this->assertTrue(false);
+        } catch(MerxException $ex) {
+            $this->assertTrue(true);
+        }
     }
 
     /** @test */
@@ -181,6 +185,8 @@ class MerxTest extends BrowserKitCase
      * @return \Dvlpp\Merx\Models\Order
      * @throws \Dvlpp\Merx\Exceptions\CartClosedException
      * @throws \Dvlpp\Merx\Exceptions\InvalidCartItemException
+     * @throws \Dvlpp\Merx\Exceptions\MapperException
+     * @throws \Dvlpp\Merx\Exceptions\NoCurrentCartException
      */
     protected function createNewOrder(Merx $merx)
     {

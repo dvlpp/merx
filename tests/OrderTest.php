@@ -60,11 +60,12 @@ class OrderTest extends BrowserKitCase
         $cart = Cart::create();
         session()->put("merx_cart_id", $cart->id);
 
-        $this->setExpectedException(NoCurrentClientException::class);
-
-        Order::create([
-            "ref" => "123"
-        ]);
+        try {
+            Order::create(["ref" => "123"]);
+            $this->assertTrue(false);
+        } catch(NoCurrentClientException $ex) {
+            $this->assertTrue(true);
+        }
     }
 
     /** @test */
@@ -95,11 +96,12 @@ class OrderTest extends BrowserKitCase
     {
         $this->loginClient();
 
-        $this->setExpectedException(NoCurrentCartException::class);
-
-        Order::create([
-            "ref" => "123"
-        ]);
+        try {
+            Order::create(["ref" => "123"]);
+            $this->assertTrue(false);
+        } catch(NoCurrentCartException $ex) {
+            $this->assertTrue(true);
+        }
     }
 
     /** @test */
@@ -107,17 +109,22 @@ class OrderTest extends BrowserKitCase
     {
         $this->loginClient();
 
-        $this->setExpectedException(OrderWithThisRefAlreadyExist::class);
+        try {
+            for ($k = 0; $k < 2; $k++) {
+                $cart = Cart::create();
+                session()->put("merx_cart_id", $cart->id);
 
-        for ($k = 0; $k < 2; $k++) {
-            $cart = Cart::create();
-            session()->put("merx_cart_id", $cart->id);
+                $cart->addItem(new CartItem($this->itemAttributes()));
 
-            $cart->addItem(new CartItem($this->itemAttributes()));
+                Order::create([
+                    "ref" => "aaa"
+                ]);
+            }
 
-            Order::create([
-                "ref" => "aaa"
-            ]);
+            $this->assertTrue(false);
+
+        } catch(OrderWithThisRefAlreadyExist $ex) {
+            $this->assertTrue(true);
         }
     }
 
@@ -133,9 +140,12 @@ class OrderTest extends BrowserKitCase
             "ref" => "aaa"
         ]);
 
-        $this->setExpectedException(EmptyCartException::class);
-
-        $order->complete();
+        try {
+            $order->complete();
+            $this->assertTrue(false);
+        } catch(EmptyCartException $ex) {
+            $this->assertTrue(true);
+        }
     }
 
     /** @test */

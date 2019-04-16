@@ -4,18 +4,17 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Faker\Generator as Faker;
 use Illuminate\Support\Facades\Schema;
-use Laravel\BrowserKitTesting\DatabaseMigrations;
 
 abstract class BrowserKitCase extends \Laravel\BrowserKitTesting\TestCase
 {
-    use DatabaseMigrations;
+    use \Illuminate\Foundation\Testing\RefreshDatabase;
 
     /**
      * @var Faker
      */
     protected $faker;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

@@ -1,0 +1,25 @@
+language: php
+php:
+  - 7.1
+  - 7.2
+  - 7.3
+
+env:
+  - LARAVEL_VERSION=5.5.* PHPUNIT_VERSION=~6.0
+  - LARAVEL_VERSION=5.6.* PHPUNIT_VERSION=~7.0
+  - LARAVEL_VERSION=5.7.* PHPUNIT_VERSION=~7.0
+  - LARAVEL_VERSION=5.8.* PHPUNIT_VERSION=~7.5
+
+matrix:
+  fast_finish: true
+
+before_install:
+  - composer require "laravel/framework:${LARAVEL_VERSION}" --no-update --prefer-dist
+  - composer require "phpunit/phpunit:${PHPUNIT_VERSION}" --no-update --prefer-dist
+
+install:
+  - travis_retry composer self-update
+  - travis_retry composer install --no-interaction --prefer-dist
+
+script:
+  - vendor/bin/phpunit
